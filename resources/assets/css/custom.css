@@ -1,0 +1,41 @@
+/* Semua menu & submenu teks abu-abu */
+#layout-menu .menu-link,
+#layout-menu .menu-sub .menu-link {
+  color: #6c757d !important;
+  font-weight: 500;
+}
+
+/* Hover menu & submenu */
+#layout-menu .menu-link:hover,
+#layout-menu .menu-sub .menu-link:hover {
+  color: #495057 !important;
+}
+
+/* Menu & submenu aktif tetap abu-abu */
+#layout-menu .menu-item.active > .menu-link,
+#layout-menu .menu-item.open > .menu-link,
+#layout-menu .menu-item.active .menu-sub .menu-link,
+#layout-menu .menu-item.open .menu-sub .menu-link {
+  color: #6c757d !important;
+}
+
+/* Hilangkan indikator warna default Materio (ungu/gradient) */
+#layout-menu .menu-item.active > .menu-link::before,
+#layout-menu .menu-item.open > .menu-link::before {
+  background: transparent !important;
+}
+
+/* Badge tetap terlihat */
+#layout-menu .badge {
+  color: #fff;
+}
+
+/* Submenu toggle icon */
+#layout-menu .menu-toggle i {
+  color: #6c757d !important;
+}
+
+/* Hover submenu toggle icon */
+#layout-menu .menu-toggle:hover i {
+  color: #495057 !important;
+}

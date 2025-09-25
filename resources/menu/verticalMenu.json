@@ -1,0 +1,167 @@
+{
+  "menu": [
+    {
+      "name": "Dashboard",
+      "icon": "menu-icon tf-icons mdi mdi-view-dashboard-outline",
+      "slug": "dashboard",
+      "url": "/dashboard"
+    },
+    {
+      "name": "Pelanggan",
+      "icon": "menu-icon tf-icons mdi mdi-account-multiple-outline",
+      "slug": "pelanggan",
+      "submenu": [
+        {
+          "url": "/klien/dashboard-klien",
+          "name": "Dashboard",
+          "slug": "klien.dashboard"
+        },
+        {
+          "url": "/klien",
+          "name": "Daftar Klien",
+          "slug": "klien.index"
+        },
+        {
+          "url": "/perusahaan",
+          "name": "Perusahaan",
+          "slug": "perusahaan.index"
+        },
+        {
+          "url": "/bank-leasing",
+          "name": "Bank Leasing",
+          "slug": "bank-leasing.index"
+        }
+      ]
+    },
+    {
+      "name": "Lembar Kerja",
+      "icon": "menu-icon tf-icons mdi mdi-file-document-outline",
+      "slug": "lembar-kerja",
+      "submenu": [
+        {
+          "url": "/lembar-kerja/dashboard",
+          "name": "Dashboard",
+          "slug": "lembar-kerja-dashboard"
+        },
+        {
+          "url": "/lembar-kerja/monitoring",
+          "name": "Monitoring",
+          "slug": "monitoring.index"
+        },
+        {
+          "url": "/lembar-kerja",
+          "name": "Lembar Kerja",
+          "slug": "lembar-kerja.index"
+        },
+        {
+          "url": "/lembar-kerja/daftar-akta",
+          "name": "Daftar Akta",
+          "slug": "lembar-kerja-daftar-akta"
+        }
+      ]
+    },
+    {
+      "name": "Keuangan",
+      "icon": "menu-icon tf-icons mdi mdi-cash-multiple",
+      "slug": "keuangan",
+      "submenu": [
+        {
+          "url": "/keuangan/dashboard",
+          "name": "Dashboard",
+          "slug": "keuangan-dashboard"
+        },
+        {
+          "url": "/keuangan/keuangan",
+          "name": "Keuangan",
+          "slug": "keuangan-main"
+        },
+        {
+          "url": "/keuangan/kas-bank",
+          "name": "Kas & Bank",
+          "slug": "keuangan-kas-bank"
+        }
+      ]
+    },
+    {
+      "name": "Master Data",
+      "icon": "menu-icon tf-icons mdi mdi-database-outline",
+      "slug": "master-data",
+      "submenu": [
+        {
+          "url": "/master-data/partner",
+          "name": "Partner",
+          "slug": "master-data-partner"
+        },
+        {
+          "url": "/master-data/template-akta",
+          "name": "Template Akta",
+          "slug": "master-data-template-akta"
+        },
+        {
+          "name": "Jenis",
+          "slug": "master-data-jenis",
+          "submenu": [
+            {
+              "url": "/master-data/jenis/akta",
+              "name": "Akta",
+              "slug": "jenis-akta"
+            },
+            {
+              "url": "/master-data/jenis/pajak",
+              "name": "Pajak",
+              "slug": "jenis-pajak"
+            },
+            {
+              "url": "/master-data/jenis/proses-lainnya",
+              "name": "Proses Lainnya",
+              "slug": "jenis-proses-lainnya"
+            },
+            {
+              "url": "/master-data/jenis/sertifikat-tanah",
+              "name": "Sertifikat Tanah",
+              "slug": "jenis-sertifikat-tanah"
+            },
+            {
+              "url": "/master-data/jenis/surat-keluar-notaris",
+              "name": "Surat Keluar Notaris",
+              "slug": "jenis-surat-keluar-notaris"
+            }
+          ]
+        },
+        {
+          "url": "/master-data/provinsi",
+          "name": "Provinsi",
+          "slug": "master-data-provinsi"
+        },
+        {
+          "url": "/master-data/kabupaten",
+          "name": "Kabupaten",
+          "slug": "master-data-kabupaten"
+        },
+        {
+          "url": "/master-data/kota",
+          "name": "Kota",
+          "slug": "master-data-kota"
+        }
+      ]
+    },
+    {
+      "name": "Laporan",
+      "icon": "menu-icon tf-icons mdi mdi-file-chart-outline",
+      "slug": "laporan",
+      "url": "/laporan"
+    },
+    {
+      "name": "Aktivitas User",
+      "icon": "menu-icon tf-icons mdi mdi-account-clock-outline",
+      "slug": "aktivitas-user",
+      "url": "/aktivitas-user"
+    },
+    {
+      "name": "Setting",
+      "icon": "menu-icon tf-icons mdi mdi-cog-outline",
+      "slug": "setting",
+      "url": "/setting"
+    }
+  ]
+}
