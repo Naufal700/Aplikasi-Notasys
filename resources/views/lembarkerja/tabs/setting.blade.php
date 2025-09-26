@@ -1,16 +1,4 @@
 <div class="mb-3">
-    <label>Template Form Order</label>
-    <select name="template_form_order_id" class="form-control">
-        <option value="">-- Pilih Template --</option>
-        @foreach($templates as $t)
-            <option value="{{ $t->id }}" {{ $lembarKerja->template_form_order_id == $t->id ? 'selected' : '' }}>
-                {{ $t->nama }}
-            </option>
-        @endforeach
-    </select>
-</div>
-
-<div class="mb-3">
     <label>Opsi Form Order</label>
     <div class="row">
         @php
@@ -25,21 +13,29 @@
                 'form_order_akta_ppat_luar_wilayah'=>'Akta PPAT Luar Wilayah'
             ];
         @endphp
+
         @foreach($opsi as $field => $label)
+            @php
+                // Ambil value dari relasi setting, default 0 (Tidak)
+                $value = $lembarKerja->setting->$field ?? 0;
+
+                // Casting value agar aman
+                $isCheckedYa = in_array($value, [1, '1', true, 't'], true);
+                $isCheckedTidak = !$isCheckedYa;
+            @endphp
+
             <div class="col-md-6 mb-2">
                 <div class="form-label fw-bold">{{ $label }}</div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" 
                            name="{{ $field }}" id="{{ $field }}_ya" 
-                           value="1" 
-                           {{ $lembarKerja->$field == 1 ? 'checked' : '' }}>
+                           value="1" {{ $isCheckedYa ? 'checked' : '' }}>
                     <label class="form-check-label" for="{{ $field }}_ya">Ya</label>
                 </div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" 
                            name="{{ $field }}" id="{{ $field }}_tidak" 
-                           value="0" 
-                           {{ $lembarKerja->$field == 0 ? 'checked' : '' }}>
+                           value="0" {{ $isCheckedTidak ? 'checked' : '' }}>
                     <label class="form-check-label" for="{{ $field }}_tidak">Tidak</label>
                 </div>
             </div>

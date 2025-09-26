@@ -1,6 +1,6 @@
 @extends('layouts/blankLayout')
 
-@section('title', 'Lupa Kata Sandi - Materio')
+@section('title', 'Lupa Kata Sandi | ')
 
 @section('content')
 <div class="login-card mx-auto shadow-sm">

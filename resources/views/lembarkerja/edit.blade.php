@@ -5,6 +5,7 @@
 @section('layoutContent')
 <div class="container-xxl flex-grow-1 container-p-y">
 
+    {{-- Header Card --}}
     <div class="card shadow-sm mb-3">
         <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
             <div class="mb-2 mb-md-0">
@@ -12,26 +13,21 @@
                     <i data-feather="edit-3" class="me-1"></i>
                     Edit Lembar Kerja — {{ $lembarKerja->nama_lembar ?? '-' }}
                 </h5>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+    <span class="badge bg-info text-dark small">
+        Status: {{ $lembarKerja->status ?? '-' }}
+    </span>
+    <span class="badge bg-success small" id="badgeTotalTagihan">
+        Total Tagihan: Rp {{ number_format($totalTagihan ?? 0, 0, ',', '.') }}
+    </span>
+    <span class="badge bg-primary small" id="badgeTotalDibayar">
+        Total Dibayar: Rp {{ number_format($totalDibayar ?? 0, 0, ',', '.') }}
+    </span>
+    <span class="badge bg-warning text-dark small" id="badgeSisaTagihan">
+        Sisa Tagihan: Rp {{ number_format($sisaTagihan ?? 0, 0, ',', '.') }}
+    </span>
+</div>
 
-                {{-- Info Label --}}
-                <div class="d-flex flex-wrap gap-3 mt-2">
-                    <span class="badge bg-info text-dark">
-                        <i data-feather="info" class="me-1"></i>
-                        Status: {{ $lembarKerja->status ?? '-' }}
-                    </span>
-                    <span class="badge bg-success">
-                        <i data-feather="dollar-sign" class="me-1"></i>
-                        Total Tagihan: Rp {{ number_format($lembarKerja->total_tagihan ?? 0, 0, ',', '.') }}
-                    </span>
-                    <span class="badge bg-primary">
-                        <i data-feather="credit-card" class="me-1"></i>
-                        Total Dibayar: Rp {{ number_format($lembarKerja->total_dibayar ?? 0, 0, ',', '.') }}
-                    </span>
-                    <span class="badge bg-warning text-dark">
-                        <i data-feather="alert-circle" class="me-1"></i>
-                        Sisa Tagihan: Rp {{ number_format(($lembarKerja->total_tagihan ?? 0) - ($lembarKerja->total_dibayar ?? 0), 0, ',', '.') }}
-                    </span>
-                </div>
             </div>
 
             {{-- Button Action --}}
@@ -49,7 +45,7 @@
         </div>
     </div>
 
-    {{-- Card utama form --}}
+    {{-- Form Card --}}
     <div class="card shadow-sm">
         <div class="card-body">
             <form action="{{ route('lembar-kerja.update', $lembarKerja->id) }}" method="POST" enctype="multipart/form-data">
@@ -83,30 +79,15 @@
 
                 {{-- Tab Content --}}
                 <div class="tab-content mt-4">
-                    <div class="tab-pane fade show active" id="tab-lembarKerja">
-                        @include('lembarkerja.tabs.lembarKerja')
-                    </div>
-                    <div class="tab-pane fade" id="tab-proses">
-                        @include('lembarkerja.tabs.proses')
-                    </div>
-                    <div class="tab-pane fade" id="tab-keuangan">
-                        @include('lembarkerja.tabs.keuangan')
-                    </div>
-                    <div class="tab-pane fade" id="tab-dokumen">
-                        @include('lembarkerja.tabs.dokumen')
-                    </div>
-                    <div class="tab-pane fade" id="tab-catatan">
-                        @include('lembarkerja.tabs.catatan')
-                    </div>
-                    <div class="tab-pane fade" id="tab-userLog">
-                        @include('lembarkerja.tabs.userLog')
-                    </div>
-                    <div class="tab-pane fade" id="tab-setting">
-                        @include('lembarkerja.tabs.setting')
-                    </div>
+                    <div class="tab-pane fade show active" id="tab-lembarKerja">@include('lembarkerja.tabs.lembarKerja')</div>
+                    <div class="tab-pane fade" id="tab-proses">@include('lembarkerja.tabs.proses')</div>
+                    <div class="tab-pane fade" id="tab-keuangan">@include('lembarkerja.tabs.keuangan')</div>
+                    <div class="tab-pane fade" id="tab-dokumen">@include('lembarkerja.tabs.dokumen')</div>
+                    <div class="tab-pane fade" id="tab-catatan">@include('lembarkerja.tabs.catatan')</div>
+                    <div class="tab-pane fade" id="tab-userLog">@include('lembarkerja.tabs.userLog')</div>
+                    <div class="tab-pane fade" id="tab-setting">@include('lembarkerja.tabs.setting')</div>
                 </div>
 
-                {{-- Submit --}}
                 <div class="mt-3 text-end">
                     <a href="{{ route('lembar-kerja.index') }}" class="btn btn-secondary me-2">Batal</a>
                     <button type="submit" class="btn btn-success">Update</button>
@@ -135,11 +116,13 @@
     </div>
   </div>
 </div>
+
 {{-- Modal Tambah Tagihan --}}
 <div class="modal fade" id="modalTambahTagihan" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <form id="formTambahTagihan">
+        @csrf
         <div class="modal-header">
           <h5 class="modal-title">Tambah Tagihan</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -149,10 +132,11 @@
                 <label>Tanggal <span class="text-danger">*</span></label>
                 <input type="date" class="form-control" name="tanggal" required>
             </div>
-            <div class="mb-3">
-                <label>Jenis <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="jenis" value="Tagihan" readonly>
-            </div>
+           <div class="mb-3">
+    <label>Jenis <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" name="jenis" value="Tagihan" readonly>
+</div>
+
             <div class="mb-3">
                 <label>Total Tagihan <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" name="total_tagihan" required>
@@ -171,8 +155,8 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label>Keterangan <span class="text-danger">*</span></label>
-                <textarea class="form-control" name="keterangan" rows="3" required></textarea>
+                <label>Keterangan</label>
+                <textarea class="form-control" name="keterangan" rows="3"></textarea>
             </div>
         </div>
         <div class="modal-footer">
@@ -183,96 +167,126 @@
     </div>
   </div>
 </div>
-@endsection
 
+@endsection
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
-    // Render feather icons
     if(window.feather) feather.replace();
 
-    // ======= TAB LOGIC =======
-    var activeTab = localStorage.getItem("activeTab");
+    // ================= TAB LOGIC =================
+    let activeTab = localStorage.getItem("activeTab");
     if (activeTab) {
-        var tabTrigger = document.querySelector('[data-bs-target="' + activeTab + '"]');
+        let tabTrigger = document.querySelector('[data-bs-target="' + activeTab + '"]');
         if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
     }
-
-    var tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
-    tabButtons.forEach(function (btn) {
+    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(btn => {
         btn.addEventListener("shown.bs.tab", function (event) {
             localStorage.setItem("activeTab", event.target.getAttribute("data-bs-target"));
         });
     });
 
-    // ======= MODAL AJUKAN AKTIVASI =======
-    var modalEl = document.getElementById('modalAjukanAktivasi');
-    var modal = new bootstrap.Modal(modalEl);
-    var btnAjukan = document.getElementById('btnAjukanAktivasi');
-    var btnSubmit = document.getElementById('btnSubmitAktivasi');
-    var textareaKeterangan = document.getElementById('keterangan');
+    // ================= MODAL AJUKAN / TAGIHAN =================
+    const btnAjukan = document.getElementById('btnAjukanAktivasi');
+    const modalAktivasiEl = document.getElementById('modalAjukanAktivasi');
+    const modalAktivasi = new bootstrap.Modal(modalAktivasiEl);
+    const btnSubmitAktivasi = document.getElementById('btnSubmitAktivasi');
 
-    // Klik tombol Ajukan Aktivasi -> buka modal
+    const modalTagihanEl = document.getElementById('modalTambahTagihan');
+    const modalTagihan = new bootstrap.Modal(modalTagihanEl);
+    const formTambahTagihan = document.getElementById('formTambahTagihan');
+
     btnAjukan.addEventListener('click', function() {
-        if (!btnAjukan.dataset.status || btnAjukan.dataset.status !== "tambahTagihan") {
-            modal.show();
+        if(btnAjukan.dataset.status !== "tambahTagihan"){
+            modalAktivasi.show();
         } else {
-            // aksi Tambah Tagihan & Proses
-            // alert("Proses Tambah Tagihan & Proses dijalankan!");
-        }
-    });
-
-    // Klik OK di modal
-    btnSubmit.addEventListener('click', function() {
-        var keterangan = textareaKeterangan.value.trim(); // opsional
-        console.log("Keterangan:", keterangan);
-
-        modal.hide();
-
-        // ubah tombol menjadi Tambah Tagihan & Proses dengan ikon
-        btnAjukan.innerHTML = '<i data-feather="plus-circle" class="me-1"></i> Tagihan';
-        btnAjukan.classList.remove("btn-success");
-        btnAjukan.classList.add("btn-primary");
-        btnAjukan.dataset.status = "tambahTagihan";
-
-        // re-render feather icons
-        if(window.feather) feather.replace();
-    });
-// ======= MODAL TAMBAH TAGIHAN =======
-    var btnAjukan = document.getElementById('btnAjukanAktivasi');
-    var modalTagihanEl = document.getElementById('modalTambahTagihan');
-    var modalTagihan = new bootstrap.Modal(modalTagihanEl);
-    var formTambahTagihan = document.getElementById('formTambahTagihan');
-
-    // Klik tombol Tambah Tagihan & Proses
-    btnAjukan.addEventListener('click', function() {
-        if(btnAjukan.dataset.status === "tambahTagihan") {
             modalTagihan.show();
         }
     });
 
-    // Submit form tagihan
-    formTambahTagihan.addEventListener('submit', function(e){
+    btnSubmitAktivasi.addEventListener('click', function() {
+        modalAktivasi.hide();
+        btnAjukan.innerHTML = '<i data-feather="plus-circle" class="me-1"></i> Tagihan';
+        btnAjukan.classList.remove("btn-success");
+        btnAjukan.classList.add("btn-primary");
+        btnAjukan.dataset.status = "tambahTagihan";
+        if(window.feather) feather.replace();
+    });
+
+    // ================= TAMBAH TAGIHAN =================
+    formTambahTagihan.addEventListener('submit', async function(e){
         e.preventDefault();
 
-        var formData = new FormData(formTambahTagihan);
-        for(let [key, value] of formData.entries()){
-            if(!value){
-                alert("Field '" + key + "' wajib diisi!");
+        const formData = new FormData();
+        modalTagihanEl.querySelectorAll('input[name], select[name], textarea[name]').forEach(el => {
+            formData.append(el.name, el.value);
+        });
+        formData.append('_token', "{{ csrf_token() }}");
+
+        try {
+            const res = await fetch("{{ route('lembar-kerja.tagihan.store', $lembarKerja->id) }}", {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: formData
+            });
+
+            const data = await res.json();
+
+            // ================= VALIDASI =================
+            if(res.status === 422){
+                const messages = Object.values(data.errors).map(e => e.join(', ')).join('<br>');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    html: messages
+                });
                 return;
             }
+
+            // ================= CEK SERVER ERROR =================
+            if(!res.ok){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan!',
+                    text: data.message || 'Server error, coba lagi!',
+                    toast: true,
+                    position: 'top-end'
+                });
+                return;
+            }
+
+            // ================= KIRIM EVENT KE TAB KEUANGAN =================
+            const event = new CustomEvent('tagihanAdded', { detail: data.tagihan });
+            document.getElementById('tab-keuangan').dispatchEvent(event);
+
+            // Reset form dan tutup modal
+            formTambahTagihan.reset();
+            modalTagihan.hide();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Tagihan berhasil ditambahkan',
+                toast: true,
+                position: 'top-end',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+        } catch(err){
+            console.error(err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan!',
+                text: 'Server error, coba lagi!',
+                toast: true,
+                position: 'top-end'
+            });
         }
-
-        // Simulasi simpan data
-        console.log("Data Tagihan:", Object.fromEntries(formData.entries()));
-
-        modalTagihan.hide();
-        formTambahTagihan.reset();
-        alert("Tagihan berhasil disimpan (simulasi)!");
     });
+
 });
 </script>
 @endpush

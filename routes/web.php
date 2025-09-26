@@ -199,6 +199,15 @@ Route::prefix('klien')->group(function () {
 
     Route::post('/upload-file', [LembarKerjaController::class, 'uploadFile'])->name('uploadFile');
     Route::get('/{id}/print', [LembarKerjaController::class, 'print'])->name('print'); // cukup 'print'
+//  Tambah Tagihan
+    Route::post('/{id}/tagihan', [LembarKerjaController::class, 'storeTagihan'])->name('tagihan.store');
+    // Hapus Tagihan
+  Route::delete('/{id}/tagihan/{tagihan}', [LembarKerjaController::class, 'destroyTagihan'])->name('tagihan.destroy');
+    // Edit tagihan
+    Route::put('/{id}/tagihan/{tagihan}', [LembarKerjaController::class, 'updateTagihan'])->name('tagihan.update');
+    Route::get('/{id}/tagihan/total', [LembarKerjaController::class, 'getTotalTagihan'])->name('tagihan.total');
+Route::get('/dashboard', [LembarKerjaController::class, 'dashboard'])->name('lembar-kerja.dashboard');
+
 });
 // proses lembar kerja
 Route::prefix('lembar-kerja')->name('lembar-kerja.')->group(function() {

@@ -65,5 +65,8 @@ class LembarKerja extends Model
 {
     return $this->hasMany(ProsesLembarKerja::class, 'lembar_kerja_id');
 }
-
+public function tagihan()
+{
+    return $this->hasMany(Tagihan::class);
+}
 }

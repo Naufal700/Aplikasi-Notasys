@@ -1,79 +1,193 @@
-{{-- Tabel Keuangan --}}
-<div class="mb-3">
-    <div class="table-responsive">
-        <table class="table table-bordered" id="keuanganTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Jenis Transaksi</th>
-                    <th>Tanggal</th>
-                    <th>Deskripsi</th>
-                    <th>Total Tagihan</th>
-                    <th>Jatuh Tempo</th>
-                    <th>Metode Pembayaran</th>
-                    <th>Keterangan</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($lembarKerja->keuangan ?? [] as $index => $k)
-                <tr data-idx="{{ $index }}">
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $k->jenis_transaksi }}<input type="hidden" name="keuangan[{{ $index }}][jenis_transaksi]" value="{{ $k->jenis_transaksi }}"></td>
-                    <td>{{ $k->tanggal }}<input type="hidden" name="keuangan[{{ $index }}][tanggal]" value="{{ $k->tanggal }}"></td>
-                    <td>{{ $k->deskripsi }}<input type="hidden" name="keuangan[{{ $index }}][deskripsi]" value="{{ $k->deskripsi }}"></td>
-                    <td>Rp {{ number_format($k->total_tagihan,0,',','.') }}<input type="hidden" name="keuangan[{{ $index }}][total_tagihan]" value="{{ $k->total_tagihan }}"></td>
-                    <td>{{ $k->jatuh_tempo }}<input type="hidden" name="keuangan[{{ $index }}][jatuh_tempo]" value="{{ $k->jatuh_tempo }}"></td>
-                    <td>{{ $k->metode_pembayaran }}<input type="hidden" name="keuangan[{{ $index }}][metode_pembayaran]" value="{{ $k->metode_pembayaran }}"></td>
-                    <td>{{ $k->keterangan }}<input type="hidden" name="keuangan[{{ $index }}][keterangan]" value="{{ $k->keterangan }}"></td>
-                </tr>
-                @empty
-                <tr><td colspan="8" class="text-center">Belum ada transaksi keuangan</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+{{-- resources/views/lembarkerja/tabs/keuangan.blade.php --}}
+
+<div class="d-flex justify-content-between mb-3">
+    <h5 class="mb-0">Daftar Tagihan</h5>
+    <button class="btn btn-sm btn-secondary" id="btnRefreshKeuangan">
+        <i data-feather="refresh-cw" class="me-1"></i> Refresh
+    </button>
 </div>
 
-{{-- Script untuk menambahkan data dari modal --}}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped" id="keuanganTable">
+        <thead class="table-primary">
+            <tr class="text-nowrap">
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th>Total Tagihan</th>
+                <th>Jatuh Tempo</th>
+                <th>Metode Pembayaran</th>
+                <th>Keterangan</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($lembarKerja->tagihan as $index => $tagihan)
+            <tr id="tagihanRow{{ $tagihan->id }}">
+                <td>{{ $index + 1 }}</td>
+                <td>{{ \Carbon\Carbon::parse($tagihan->tanggal)->format('d-m-Y') }}</td>
+                <td>{{ $tagihan->jenis }}</td>
+                <td>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</td>
+                <td>{{ \Carbon\Carbon::parse($tagihan->jatuh_tempo)->format('d-m-Y') }}</td>
+                <td>{{ $tagihan->metode_pembayaran }}</td>
+                <td>{{ $tagihan->keterangan ?? '-' }}</td>
+                <td>
+                    {{-- Tombol Edit --}}
+                    <button class="btn btn-sm btn-warning btnEditTagihan" 
+                            data-id="{{ $tagihan->id }}" 
+                            data-tanggal="{{ $tagihan->tanggal }}"
+                            data-total="{{ $tagihan->total_tagihan }}"
+                            data-jatuh_tempo="{{ $tagihan->jatuh_tempo }}"
+                            data-metode="{{ $tagihan->metode_pembayaran }}"
+                            data-keterangan="{{ $tagihan->keterangan }}">
+                        <i data-feather="edit"></i>
+                    </button>
+
+                    {{-- Tombol Hapus --}}
+                    <button class="btn btn-sm btn-danger btnHapusTagihan" data-id="{{ $tagihan->id }}">
+                        <i data-feather="trash-2"></i>
+                    </button>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="8" class="text-center text-muted">Belum ada tagihan</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
+@push('scripts')
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const formTambah = document.getElementById("formTambahTagihan");
-    const keuanganTable = document.getElementById("keuanganTable").querySelector("tbody");
-    let rowIndex = keuanganTable.querySelectorAll("tr").length;
+    let keuanganTable;
+    if(window.jQuery && $.fn.DataTable){
+        keuanganTable = $('#keuanganTable').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            responsive: true
+        });
+    }
 
-    formTambah.addEventListener("submit", function(e) {
+    // REFRESH TABLE
+    document.getElementById('btnRefreshKeuangan').addEventListener('click', function(){
+        location.reload();
+    });
+
+    // EDIT TAGIHAN
+    document.querySelectorAll('.btnEditTagihan').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const modal = new bootstrap.Modal(document.getElementById('modalTambahTagihan'));
+            const form = document.getElementById('formTambahTagihan');
+
+            // Set values ke modal
+            form.querySelector('input[name="tanggal"]').value = this.dataset.tanggal;
+            form.querySelector('input[name="total_tagihan"]').value = this.dataset.total;
+            form.querySelector('input[name="jatuh_tempo"]').value = this.dataset.jatuh_tempo;
+            form.querySelector('select[name="metode_pembayaran"]').value = this.dataset.metode;
+            form.querySelector('textarea[name="keterangan"]').value = this.dataset.keterangan || '';
+            form.dataset.editId = id;
+            form.querySelector('button[type="submit"]').innerText = 'Update Tagihan';
+
+            modal.show();
+        });
+    });
+
+    // SUBMIT FORM TAGIHAN
+    const formTagihan = document.getElementById('formTambahTagihan');
+    formTagihan.addEventListener('submit', async function(e){
         e.preventDefault();
 
-        // Ambil data dari modal
-        const formData = new FormData(formTambah);
-        const tanggal = formData.get("tanggal");
-        const jenis = formData.get("jenis");
-        const total_tagihan = formData.get("total_tagihan");
-        const jatuh_tempo = formData.get("jatuh_tempo");
-        const metode_pembayaran = formData.get("metode_pembayaran");
-        const keterangan = formData.get("keterangan");
+        const editId = this.dataset.editId;
+        const formData = new FormData(this);
 
-        // Tambahkan baris baru ke tabel
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-            <td>${rowIndex + 1}</td>
-            <td>${jenis}<input type="hidden" name="keuangan[${rowIndex}][jenis_transaksi]" value="${jenis}"></td>
-            <td>${tanggal}<input type="hidden" name="keuangan[${rowIndex}][tanggal]" value="${tanggal}"></td>
-            <td>${keterangan}<input type="hidden" name="keuangan[${rowIndex}][deskripsi]" value="${keterangan}"></td>
-            <td>Rp ${parseInt(total_tagihan).toLocaleString('id-ID')}<input type="hidden" name="keuangan[${rowIndex}][total_tagihan]" value="${total_tagihan}"></td>
-            <td>${jatuh_tempo}<input type="hidden" name="keuangan[${rowIndex}][jatuh_tempo]" value="${jatuh_tempo}"></td>
-            <td>${metode_pembayaran}<input type="hidden" name="keuangan[${rowIndex}][metode_pembayaran]" value="${metode_pembayaran}"></td>
-            <td>${keterangan}<input type="hidden" name="keuangan[${rowIndex}][keterangan]" value="${keterangan}"></td>
-        `;
-        keuanganTable.appendChild(newRow);
-        rowIndex++;
+        if(editId){
+            // UPDATE via AJAX
+            try {
+                const res = await fetch(`{{ url('lembar-kerja/'.$lembarKerja->id.'/tagihan') }}/${editId}`, {
+                    method: 'PUT', // atau PATCH sesuai route
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                const data = await res.json();
 
-        // Reset form & tutup modal
-        formTambah.reset();
-        const modalEl = document.getElementById("modalTambahTagihan");
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
+                if(res.ok && data.status === 'success'){
+                    // Update row tabel
+                    const row = document.getElementById('tagihanRow' + editId);
+                    row.querySelector('td:nth-child(2)').innerText = data.tagihan.tanggal_formatted;
+                    row.querySelector('td:nth-child(3)').innerText = data.tagihan.jenis;
+                    row.querySelector('td:nth-child(4)').innerText = `Rp ${data.tagihan.total_tagihan_formatted}`;
+                    row.querySelector('td:nth-child(5)').innerText = data.tagihan.jatuh_tempo_formatted;
+                    row.querySelector('td:nth-child(6)').innerText = data.tagihan.metode_pembayaran;
+                    row.querySelector('td:nth-child(7)').innerText = data.tagihan.keterangan || '-';
+
+                    toastr.success('Tagihan berhasil diperbarui');
+                    bootstrap.Modal.getInstance(document.getElementById('modalTambahTagihan')).hide();
+                } else {
+                    toastr.error(data.message || 'Gagal mengupdate tagihan!');
+                }
+            } catch(err){
+                console.error(err);
+                toastr.error('Terjadi kesalahan server!');
+            }
+        }
     });
+
+    // HAPUS TAGIHAN
+    document.querySelectorAll('.btnHapusTagihan').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tagihanId = this.dataset.id;
+            Swal.fire({
+                title: 'Hapus Tagihan?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
+                if(result.isConfirmed){
+                    try {
+                        const res = await fetch(`{{ url('lembar-kerja/'.$lembarKerja->id.'/tagihan') }}/${tagihanId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                                'Accept': 'application/json'
+                            }
+                        });
+                        const data = await res.json();
+                        if(res.ok && data.status === 'success'){
+                            document.getElementById('tagihanRow' + tagihanId).remove();
+                            toastr.success(data.message);
+                        } else {
+                            toastr.error(data.message || 'Gagal menghapus tagihan!');
+                        }
+                    } catch(err){
+                        console.error(err);
+                        toastr.error('Terjadi kesalahan server!');
+                    }
+                }
+            });
+        });
+    });
+
+    // TOASTR OPTIONS
+    toastr.options = {
+        "positionClass": "toast-top-right",
+        "timeOut": "3000",
+        "closeButton": true,
+        "progressBar": true
+    };
 });
 </script>
+
+@endpush

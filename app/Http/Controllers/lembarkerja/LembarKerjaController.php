@@ -6,8 +6,11 @@ use App\Models\klien\Klien;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\lembarkerja\Layanan;
+use App\Models\lembarkerja\Tagihan;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\lembarkerja\LembarKerja;
+use App\Models\lembarkerja\LogAktivitas;
 use App\Models\lembarkerja\LembarSetting;
 use App\Models\lembarkerja\LembarFormOrder;
 use App\Models\lembarkerja\LembarPenghadap;
@@ -144,12 +147,12 @@ class LembarKerjaController extends Controller
                 ]));
             }
         }
-
+  $this->logAktivitas('Buat Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}, Nama: {$lembarKerja->nama_lembar}");
         return redirect()->route('lembar-kerja.index')->with('success', 'Lembar Kerja berhasil dibuat dengan status DRAFT.');
     }
 
     // Form Edit
-  public function edit(LembarKerja $lembarKerja)
+ public function edit(LembarKerja $lembarKerja)
 {
     $klien = Klien::select('id','nama','tipe')->get();
     $layanan = Layanan::all();
@@ -167,10 +170,16 @@ class LembarKerjaController extends Controller
         'akta_ppat_luar_wilayah'
     ];
 
-    $lembarKerja->load('penghadap', 'setting', 'formOrders');
+    // Load relasi
+    $lembarKerja->load('penghadap', 'setting', 'formOrders', 'tagihan');
 
-    // ✅ Ambil klien_id dari relasi penghadap
+    // Ambil klien_id dari relasi penghadap
     $selectedPenghadap = $lembarKerja->penghadap->pluck('klien_id')->toArray();
+
+    // Hitung total tagihan dan total dibayar
+    $totalTagihan = $lembarKerja->tagihan->sum('total_tagihan');
+    $totalDibayar = $lembarKerja->tagihan->sum('total_dibayar') ?? 0;
+    $sisaTagihan = $totalTagihan - $totalDibayar;
 
     $aktaList = ['Akta Jual Beli', 'Akta Hibah', 'Akta Waris', 'Akta Pendirian PT'];
 
@@ -181,9 +190,13 @@ class LembarKerjaController extends Controller
         'templates',
         'opsiFormOrder',
         'aktaList',
-        'selectedPenghadap'
+        'selectedPenghadap',
+        'totalTagihan',
+        'totalDibayar',
+        'sisaTagihan'
     ));
 }
+
     // Update Lembar Kerja
     public function update(Request $request, LembarKerja $lembarKerja)
     {
@@ -252,14 +265,15 @@ class LembarKerjaController extends Controller
                 ]));
             }
         }
-
+$this->logAktivitas('Update Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}");
         return redirect()->route('lembar-kerja.index')->with('success', 'Lembar Kerja berhasil diupdate.');
     }
 
     // Delete
     public function destroy(LembarKerja $lembarKerja)
     {
-        $lembarKerja->delete();
+       $this->logAktivitas('Hapus Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}");
+$lembarKerja->delete();
         return redirect()->route('lembar-kerja.index')->with('success', 'Lembar Kerja berhasil dihapus.');
     }
     public function monitoring(Request $request)
@@ -354,7 +368,7 @@ if($filterDate === 'today') {
             'urutan' => $request->urutan,
             'catatan' => $request->catatan,
         ]);
-
+$this->logAktivitas('Tambah Proses', "Lembar: {$lembarKerja->no_pesanan}, Proses: {$proses->nama_proses}");
         return response()->json(['status' => 'success', 'proses' => $proses]);
     }
 
@@ -376,14 +390,15 @@ if($filterDate === 'today') {
             'urutan' => $request->urutan,
             'catatan' => $request->catatan,
         ]);
-
+$this->logAktivitas('Update Proses', "Proses ID: {$proses->id}, Nama: {$proses->nama_proses}");
         return response()->json(['status' => 'success', 'proses' => $proses]);
     }
 
     // Hapus proses
     public function destroyProses(ProsesLembarKerja $proses)
     {
-        $proses->delete();
+        $this->logAktivitas('Hapus Proses', "Proses ID: {$proses->id}, Nama: {$proses->nama_proses}");
+    $proses->delete();
         return response()->json(['status' => 'success']);
     }
     public function showProses($prosesId)
@@ -400,6 +415,124 @@ if($filterDate === 'today') {
             'message' => 'Proses tidak ditemukan'
         ], 404);
     }
+}
+// Simpan Tagihan dari modal
+public function storeTagihan(Request $request, $id)
+    {
+        \Log::info("Request Tagihan:", $request->all());
+
+        // Validasi
+        $validated = $request->validate([
+            'tanggal' => 'required|date',
+            'jenis' => 'required|string',
+            'total_tagihan' => 'required|numeric|min:0',
+            'jatuh_tempo' => 'required|date',
+            'metode_pembayaran' => 'required|string',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        // Cari Lembar Kerja
+        $lembarKerja = LembarKerja::findOrFail($id);
+
+        // Simpan tagihan
+        $tagihan = $lembarKerja->tagihan()->create($validated);
+ $this->logAktivitas('Tambah Tagihan', "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan: {$tagihan->total_tagihan}");
+        // Response JSON
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Tagihan berhasil ditambahkan!',
+            'tagihan' => $tagihan
+        ]);
+    }
+    public function destroyTagihan($lembarKerjaId, $tagihanId)
+{
+    $tagihan = Tagihan::where('lembar_kerja_id', $lembarKerjaId)->findOrFail($tagihanId);
+    $total = $tagihan->total_tagihan;
+  $this->logAktivitas('Hapus Tagihan', "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}");
+    $tagihan->delete();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Tagihan berhasil dihapus',
+        'total_tagihan' => $total
+    ]);
+}
+
+public function updateTagihan(Request $request, $lembarKerjaId, $tagihanId)
+{
+    $tagihan = Tagihan::where('lembar_kerja_id', $lembarKerjaId)->findOrFail($tagihanId);
+    $tagihan->update($request->only(['tanggal','total_tagihan','jatuh_tempo','metode_pembayaran','keterangan']));
+$this->logAktivitas('Update Tagihan', "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}");
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Tagihan berhasil diupdate',
+        'tagihan' => $tagihan
+    ]);
+}
+protected function logAktivitas($aktivitas, $detail = null)
+{
+    LogAktivitas::create([
+        'user_id' => Auth::id(),
+        'aktivitas' => $aktivitas,
+        'detail' => $detail,
+    ]);
+}
+// Tambahkan di dalam class LembarKerjaController
+
+/**
+ * Dashboard Lembar Kerja
+ */
+public function dashboard()
+{
+    // Hitung jumlah lembar kerja per status (tanpa 'isi')
+    $countDraft = LembarKerja::where('status', 'draft')->count();
+    $countPersetujuan = LembarKerja::where('status', 'persetujuan')->count();
+    $countProses = LembarKerja::where('status', 'proses')->count();
+    $countSelesai = LembarKerja::where('status', 'selesai')->count();
+
+    // Ambil data persetujuan terbaru 10
+    $persetujuan = LembarKerja::with('klien', 'formOrders')
+        ->where('status', 'persetujuan')
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
+
+    // Ambil data proses terbaru 10
+    $proses = LembarKerja::with('klien', 'formOrders', 'tagihan')
+        ->where('status', 'proses')
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get()
+        ->map(function($item) {
+            $totalTagihan = $item->tagihan->sum('total_tagihan');
+            $totalDibayar = $item->tagihan->sum('total_dibayar') ?? 0;
+            $sisaTagihan = $totalTagihan - $totalDibayar;
+
+            return (object)[
+                'no_pesanan' => $item->no_pesanan,
+                'nama' => $item->nama_lembar,
+                'akta' => $item->formOrders->pluck('jenis_akta')->implode(', '),
+                'sisa_tagihan' => $sisaTagihan,
+                'created_at' => $item->created_at,
+            ];
+        });
+
+    // Ambil log aktivitas terbaru 10
+    $logs = LogAktivitas::with('user')
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
+
+    // Kirim semua data ke view
+    return view('lembarKerja.dashboard', compact(
+        'countDraft',
+        'countPersetujuan',
+        'countProses',
+        'countSelesai',
+        'persetujuan',
+        'proses',
+        'logs'
+    ));
 }
 
 }

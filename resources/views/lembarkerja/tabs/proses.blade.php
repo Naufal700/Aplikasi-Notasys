@@ -18,8 +18,8 @@
     {{-- Tabel Proses --}}
     <div class="table-responsive">
         <table class="table table-bordered" id="prosesTable">
-            <thead>
-                <tr>
+           <thead class="table-primary">
+                        <tr class="text-nowrap">
                     <th>No</th>
                     <th>Nama Proses <span class="text-danger">*</span></th>
                     <th>Target Selesai</th>

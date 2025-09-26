@@ -41,7 +41,7 @@
         {
           "url": "/lembar-kerja/dashboard",
           "name": "Dashboard",
-          "slug": "lembar-kerja-dashboard"
+          "slug": "lembar-kerja.dashboard"
         },
         {
           "url": "/lembar-kerja/monitoring",

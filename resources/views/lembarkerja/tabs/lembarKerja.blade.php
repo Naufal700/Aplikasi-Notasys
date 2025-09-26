@@ -97,8 +97,8 @@
     <button type="button" class="btn btn-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modalFormOrder">+ Notaris</button>
     <div class="table-responsive">
         <table class="table table-bordered" id="reviewFormOrderTable">
-            <thead>
-                <tr>
+             <thead class="table-primary">
+                        <tr class="text-nowrap">
                     <th>#</th>
                     <th>Jenis Akta <span class="text-danger">*</span></th>
                     <th>No Akta <span class="text-danger">*</span></th>
@@ -203,8 +203,8 @@
         <button type="button" class="btn btn-sm btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#modalProsesLainnya">+ Proses Lainnya</button>
         <div class="table-responsive">
             <table class="table table-bordered" id="prosesLainnyaTable">
-                <thead>
-                    <tr>
+                <thead class="table-primary">
+                        <tr class="text-nowrap">
                         <th>No</th>
                         <th>Jenis Proses</th>
                         <th>Biaya</th>
@@ -265,8 +265,8 @@
         <button type="button" class="btn btn-sm btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#modalSuratKeluar">+ Surat Keluar</button>
         <div class="table-responsive">
             <table class="table table-bordered" id="suratKeluarTable">
-                <thead>
-                    <tr>
+                 <thead class="table-primary">
+                        <tr class="text-nowrap">
                         <th>No</th>
                         <th>Jenis Surat</th>
                         <th>Nama Surat</th>
