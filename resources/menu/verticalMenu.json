@@ -68,7 +68,7 @@
         {
           "url": "/keuangan/dashboard",
           "name": "Dashboard",
-          "slug": "keuangan-dashboard"
+          "slug": "keuangan.dashboard"
         },
         {
           "url": "/keuangan",

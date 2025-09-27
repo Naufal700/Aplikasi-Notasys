@@ -255,5 +255,6 @@ Route::prefix('keuangan/master')->group(function() {
         ]
     ]);
 });
-
+// Dashboard Keuangan
+Route::get('/keuangan/dashboard', [KeuanganController::class, 'dashboard'])->name('keuangan.dashboard');
 });

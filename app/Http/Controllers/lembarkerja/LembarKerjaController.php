@@ -506,24 +506,40 @@ protected function logAktivitas($aktivitas, $detail = null)
 /**
  * Dashboard Lembar Kerja
  */
-public function dashboard()
+public function dashboard(Request $request)
 {
-    // Hitung jumlah lembar kerja per status (tanpa 'isi')
-    $countDraft = LembarKerja::where('status', 'draft')->count();
-    $countPersetujuan = LembarKerja::where('status', 'persetujuan')->count();
-    $countProses = LembarKerja::where('status', 'proses')->count();
-    $countSelesai = LembarKerja::where('status', 'selesai')->count();
+    // Ambil bulan dari query string, default bulan ini
+    $selectedMonth = $request->get('month', date('m'));
 
-    // Ambil data persetujuan terbaru 10
+    // Array bulan untuk dropdown
+    $months = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+
+    // Hitung jumlah lembar kerja per status (filter bulan)
+    $countDraft = LembarKerja::where('status', 'draft')
+        ->whereMonth('created_at', $selectedMonth)->count();
+    $countPersetujuan = LembarKerja::where('status', 'persetujuan')
+        ->whereMonth('created_at', $selectedMonth)->count();
+    $countProses = LembarKerja::where('status', 'proses')
+        ->whereMonth('created_at', $selectedMonth)->count();
+    $countSelesai = LembarKerja::where('status', 'selesai')
+        ->whereMonth('created_at', $selectedMonth)->count();
+
+    // Ambil data persetujuan terbaru 10 bulan tersebut
     $persetujuan = LembarKerja::with('klien', 'formOrders')
         ->where('status', 'persetujuan')
+        ->whereMonth('created_at', $selectedMonth)
         ->orderBy('created_at', 'desc')
         ->take(10)
         ->get();
 
-    // Ambil data proses terbaru 10
+    // Ambil data proses terbaru 10 bulan tersebut
     $proses = LembarKerja::with('klien', 'formOrders', 'tagihan')
         ->where('status', 'proses')
+        ->whereMonth('created_at', $selectedMonth)
         ->orderBy('created_at', 'desc')
         ->take(10)
         ->get()
@@ -541,13 +557,14 @@ public function dashboard()
             ];
         });
 
-    // Ambil log aktivitas terbaru 10
+    // Ambil log aktivitas terbaru 10 bulan tersebut
     $logs = LogAktivitas::with('user')
+        ->whereMonth('created_at', $selectedMonth)
         ->orderBy('created_at', 'desc')
-        ->take(5)
+        ->take(10)
         ->get();
 
-    // Kirim semua data ke view
+    // Kirim semua data + bulan ke view
     return view('lembarKerja.dashboard', compact(
         'countDraft',
         'countPersetujuan',
@@ -555,9 +572,12 @@ public function dashboard()
         'countSelesai',
         'persetujuan',
         'proses',
-        'logs'
+        'logs',
+        'months',
+        'selectedMonth'
     ));
 }
+
 public function updateStatus(Request $request, $id)
 {
     $lembarKerja = LembarKerja::findOrFail($id);

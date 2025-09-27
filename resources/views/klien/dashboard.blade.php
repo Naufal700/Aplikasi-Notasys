@@ -9,7 +9,18 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold mb-0">Dashboard Klien</h4>
     </div>
-
+<form method="GET" class="row g-2 mb-4">
+        <div class="col-md-2">
+            <select name="month" class="form-select">
+                @foreach($months as $num => $name)
+                <option value="{{ $num }}" {{ $num == $selectedMonth ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-50">Filter</button>
+        </div>
+    </form>
     <!-- KPI Cards -->
     <div class="row g-3 mb-4">
         @php
@@ -21,7 +32,7 @@
             ];
         @endphp
         @foreach($kpi as $card)
-        <div class="col-md-3 col-6">
+         <div class="col-md-3 col-12">
             <div class="card shadow-sm border-0 h-100 hover-shadow">
                 <div class="card-body d-flex align-items-center justify-content-between">
                     <div>

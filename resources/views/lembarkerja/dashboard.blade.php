@@ -9,7 +9,18 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold mb-0">Dashboard Lembar Kerja</h4>
     </div>
-
+<form method="GET" class="row g-2 mb-4">
+        <div class="col-md-2">
+            <select name="month" class="form-select">
+                @foreach($months as $num => $name)
+                <option value="{{ $num }}" {{ $num == $selectedMonth ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-50">Filter</button>
+        </div>
+    </form>
     <!-- KPI Cards -->
     <div class="row g-3 mb-4">
         @php
@@ -21,7 +32,7 @@
             ];
         @endphp
         @foreach($cards as $card)
-        <div class="col-md-3 col-6">
+         <div class="col-md-3 col-12">
             <div class="card shadow-sm border-0 h-100 hover-shadow">
                 <div class="card-body d-flex align-items-center justify-content-between">
                     <div>
@@ -110,43 +121,43 @@
             <h6 class="mb-0 fw-bold">{{ $statusName }}</h6>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped align-middle mb-0">
-                    <thead class="table-light sticky-top">
-                        <tr>
-                            <th>#</th>
-                            <th>No Pesanan</th>
-                            <th>Nama</th>
-                            <th>Akta</th>
-                            @if($statusName === 'Proses') <th>Sisa Tagihan</th> @endif
-                            <th>Tanggal Buat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($groupData as $item)
-                        <tr>
-                            <th>{{ $loop->iteration }}</th>
-                            <td>{{ $item->no_pesanan }}</td>
-                            <td>{{ $item->nama }}</td>
-                            <td>{{ $item->akta }}</td>
-                            @if($statusName === 'Proses')
-                            <td>
-                                <span class="badge bg-danger">
-                                    {{ number_format($item->sisa_tagihan,0,',','.') }}
-                                </span>
-                            </td>
-                            @endif
-                            <td>{{ $item->created_at->format('d-m-Y') }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="@if($statusName === 'Proses') 6 @else 5 @endif" class="text-center text-muted">Tidak ada data.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle mb-0">
+            <thead class="table-light sticky-top">
+                <tr>
+                    <th>#</th>
+                    <th>No Pesanan</th>
+                    <th>Nama</th>
+                    <th>Layanan</th>
+                    @if($statusName === 'Proses') <th>Sisa Tagihan</th> @endif
+                    <th>Tanggal Buat</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($groupData as $item)
+                <tr>
+                    <th>{{ $loop->iteration }}</th>
+                    <td>{{ $item->no_pesanan }}</td>
+                    <td>{{ $item->klien->nama ?? '-' }}</td>
+                    <td>{{ $item->layanan->nama_layanan ?? '-' }}</td>
+                    @if($statusName === 'Proses')
+                    <td>
+                        <span class="badge bg-danger">
+                            {{ number_format($item->sisa_tagihan,0,',','.') }}
+                        </span>
+                    </td>
+                    @endif
+                    <td>{{ $item->created_at->format('d-m-Y') }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="@if($statusName === 'Proses') 6 @else 5 @endif" class="text-center text-muted">Tidak ada data.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
     </div>
     @endforeach
 

@@ -244,39 +244,50 @@ class KlienController extends Controller
         return response()->json(['data' => $data]);
     }
     // Controller Dashboard Pelanggan
-   public function dashboard(Request $request)
+  public function dashboard(Request $request)
 {
-    // Total semua klien
-    $total = Klien::count();
+    // Ambil bulan yang dipilih dari query string, default bulan ini
+    $selectedMonth = $request->get('month', date('m'));
 
-    // Total berdasarkan tipe
-    $pribadi = Klien::where('tipe', 'pribadi')->count();
-    $bankLeasing = Klien::where('tipe', 'bank_leasing')->count();
-    $perusahaan = Klien::where('tipe', 'perusahaan')->count();
+    // Array bulan untuk dropdown
+    $months = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
 
-    // Data untuk tabel
-    $pribadiData = Klien::where('tipe', 'pribadi')->orderBy('created_at', 'desc')->get();
-    $bankLeasingData = Klien::where('tipe', 'bank_leasing')->orderBy('created_at', 'desc')->get();
-    $perusahaanData = Klien::where('tipe', 'perusahaan')->orderBy('created_at', 'desc')->get();
+    // Total semua klien di bulan terpilih
+    $total = Klien::whereMonth('created_at', $selectedMonth)->count();
 
-    // Pertumbuhan bulanan (jumlah klien baru per bulan)
-  $monthlyGrowth = Klien::selectRaw('EXTRACT(MONTH FROM created_at) as bulan, COUNT(*) as total')
-    ->groupBy('bulan')
-    ->orderBy('bulan')
-    ->pluck('total', 'bulan')
-    ->toArray();
+    // Total per tipe di bulan terpilih
+    $pribadi = Klien::where('tipe', 'pribadi')->whereMonth('created_at', $selectedMonth)->count();
+    $bankLeasing = Klien::where('tipe', 'bank_leasing')->whereMonth('created_at', $selectedMonth)->count();
+    $perusahaan = Klien::where('tipe', 'perusahaan')->whereMonth('created_at', $selectedMonth)->count();
 
-    // Buat array 12 bulan (biar rapi Jan–Des, kalau tidak ada data tetap 0)
+    // Data untuk tabel per tipe di bulan terpilih
+    $pribadiData = Klien::where('tipe', 'pribadi')->whereMonth('created_at', $selectedMonth)->orderBy('created_at', 'desc')->get();
+    $bankLeasingData = Klien::where('tipe', 'bank_leasing')->whereMonth('created_at', $selectedMonth)->orderBy('created_at', 'desc')->get();
+    $perusahaanData = Klien::where('tipe', 'perusahaan')->whereMonth('created_at', $selectedMonth)->orderBy('created_at', 'desc')->get();
+
+    // Pertumbuhan bulanan (jumlah klien baru per bulan, tahun ini)
+    $monthlyGrowth = Klien::selectRaw('EXTRACT(MONTH FROM created_at) as bulan, COUNT(*) as total')
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->orderBy('bulan')
+        ->pluck('total', 'bulan')
+        ->toArray();
+
+    // Lengkapi 12 bulan agar Jan–Des selalu ada
     $growthData = [];
     for ($i = 1; $i <= 12; $i++) {
         $growthData[] = $monthlyGrowth[$i] ?? 0;
     }
 
+    // Kirim semua data ke view
     return view('klien.dashboard', compact(
         'total', 'pribadi', 'bankLeasing', 'perusahaan',
         'pribadiData', 'bankLeasingData', 'perusahaanData',
-        'growthData'
+        'growthData', 'months', 'selectedMonth'
     ));
 }
-
 }
