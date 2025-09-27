@@ -4,7 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\klien\KlienController;
+use App\Http\Controllers\master\PartnerController;
+use App\Http\Controllers\master\ProvinsiController;
 use App\Http\Controllers\klien\PerusahaanController;
+use App\Http\Controllers\master\KabupatenController;
 use App\Http\Controllers\keuangan\KeuanganController;
 use App\Http\Controllers\klien\BankLeasingController;
 use App\Http\Controllers\jenisakta\JenisAktaController;
@@ -257,4 +260,43 @@ Route::prefix('keuangan/master')->group(function() {
 });
 // Dashboard Keuangan
 Route::get('/keuangan/dashboard', [KeuanganController::class, 'dashboard'])->name('keuangan.dashboard');
+// Master Partner
+Route::prefix('partners')->group(function() {
+    Route::get('/', [PartnerController::class, 'index'])->name('partners.index');
+    Route::get('/create', [PartnerController::class, 'create'])->name('partners.create');
+    Route::post('/store', [PartnerController::class, 'store'])->name('partners.store');
+    Route::get('/{partner}/edit', [PartnerController::class, 'edit'])->name('partners.edit');
+    Route::put('/{partner}', [PartnerController::class, 'update'])->name('partners.update');
+    Route::delete('/{partner}', [PartnerController::class, 'destroy'])->name('partners.destroy');
+
+    // AJAX route untuk ambil kabupaten
+    Route::get('/kabupaten/{provinsi_id}', [PartnerController::class, 'getKabupaten'])->name('partners.kabupaten');
+});
+// ================== PROVINSI ================== //
+// CRUD Provinsi
+Route::prefix('provinsi')->name('provinsi.')->group(function () {
+    Route::get('/', [ProvinsiController::class, 'index'])->name('index');
+    Route::get('/create', [ProvinsiController::class, 'create'])->name('create');
+    Route::post('/store', [ProvinsiController::class, 'store'])->name('store');
+    Route::get('/{provinsi}/edit', [ProvinsiController::class, 'edit'])->name('edit');
+    Route::put('/{provinsi}/update', [ProvinsiController::class, 'update'])->name('update');
+    Route::delete('/{provinsi}/delete', [ProvinsiController::class, 'destroy'])->name('destroy');
+
+    // Endpoint AJAX untuk dropdown select2
+    Route::get('/all', [ProvinsiController::class, 'getAll'])->name('getAll');
+});
+
+// ================== KABUPATEN ================== //
+// CRUD Kabupaten
+Route::prefix('kabupaten')->name('kabupaten.')->group(function () {
+    Route::get('/', [KabupatenController::class, 'index'])->name('index');
+    Route::get('/create', [KabupatenController::class, 'create'])->name('create');
+    Route::post('/store', [KabupatenController::class, 'store'])->name('store');
+    Route::get('/{kabupaten}/edit', [KabupatenController::class, 'edit'])->name('edit');
+    Route::put('/{kabupaten}/update', [KabupatenController::class, 'update'])->name('update');
+    Route::delete('/{kabupaten}/delete', [KabupatenController::class, 'destroy'])->name('destroy');
+
+    // Endpoint AJAX untuk ambil kabupaten berdasarkan provinsi
+    Route::get('/provinsi/{provinsi_id}', [KabupatenController::class, 'getByProvinsi'])->name('getByProvinsi');
+});
 });

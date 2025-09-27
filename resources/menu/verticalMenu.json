@@ -88,9 +88,9 @@
       "slug": "master-data",
       "submenu": [
         {
-          "url": "/master-data/partner",
+          "url": "/partners",
           "name": "Partner",
-          "slug": "master-data-partner"
+          "slug": "partners.index"
         },
         {
           "url": "/master-data/template-akta",
@@ -129,19 +129,14 @@
           ]
         },
         {
-          "url": "/master-data/provinsi",
+          "url": "/provinsi",
           "name": "Provinsi",
-          "slug": "master-data-provinsi"
+          "slug": "provinsi.index"
         },
         {
-          "url": "/master-data/kabupaten",
+          "url": "/kabupaten",
           "name": "Kabupaten",
-          "slug": "master-data-kabupaten"
-        },
-        {
-          "url": "/master-data/kota",
-          "name": "Kota",
-          "slug": "master-data-kota"
+          "slug": "kabupaten.index"
         }
       ]
     },
