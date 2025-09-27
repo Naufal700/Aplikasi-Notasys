@@ -26,7 +26,7 @@
             <tr id="tagihanRow{{ $tagihan->id }}">
                 <td>{{ $index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::parse($tagihan->tanggal)->format('d-m-Y') }}</td>
-                <td>{{ $tagihan->jenis }}</td>
+<td>{{ $tagihan->kategori->nama_kategori ?? '-' }}</td>
                 <td>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</td>
                 <td>{{ \Carbon\Carbon::parse($tagihan->jatuh_tempo)->format('d-m-Y') }}</td>
                 <td>{{ $tagihan->metode_pembayaran }}</td>

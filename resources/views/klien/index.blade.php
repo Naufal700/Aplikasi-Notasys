@@ -144,7 +144,7 @@
     @csrf
     @method('DELETE')
     <button type="button" class="btn btn-danger btn-icon btn-sm" 
-            onclick="confirmDelete(event, 'deleteForm{{ $item->id }}')" 
+            onclick="confirmDelete(event, 'deleteForm{{ $item->id }}','{{ $item->nama}}')" 
             title="Hapus">
         <i class="mdi mdi-trash-can-outline"></i>
     </button>
@@ -162,7 +162,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="mt-3">
+             <div class="d-flex justify-content-end">
                 {{ $klien->withQueryString()->links('pagination::bootstrap-5') }}
             </div>
         </div>

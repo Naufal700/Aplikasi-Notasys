@@ -52,41 +52,48 @@
         </div>
 
         <!-- Log Aktivitas -->
-        <div class="col-lg-6 col-md-12">
+       <div class="col-lg-6 col-md-12">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0 fw-bold">Log Aktivitas Terbaru</h6>
-                </div>
-                <div class="card-body p-0" style="max-height: 330px; overflow-y: auto;">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped align-middle mb-0">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th>Waktu</th>
-                                    <th>User</th>
-                                    <th>Aktivitas</th>
-                                    <th>Detail</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($logs as $log)
-                                <tr>
-                                    <td>{{ $log->created_at->format('d-m-Y H:i:s') }}</td>
-                                    <td>{{ $log->user->name ?? '-' }}</td>
-                                    <td>{{ $log->aktivitas }}</td>
-                                    <td>{{ $log->detail }}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">Tidak ada log aktivitas.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <h6 class="mb-0 fw-bold">
+                <i class="mdi mdi-history me-2"></i> Log Aktivitas Terbaru
+            </h6>
+        </div>
+        <div class="card-body p-0" style="max-height: 330px; overflow-y: auto;">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th class="text-nowrap">Waktu</th>
+                            <th>User</th>
+                            <th>Aktivitas</th>
+                            <th>Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($logs as $log)
+                        <tr>
+                            <td class="text-nowrap">{{ $log->created_at->format('d-m-Y H:i:s') }}</td>
+                            <td>{{ $log->user->name ?? '-' }}</td>
+                            <td>{{ $log->aktivitas }}</td>
+                            <td class="text-truncate" style="max-width: 200px;" title="{{ $log->detail }}">
+                                {{ $log->detail }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">
+                                Tidak ada log aktivitas.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
+</div>
+
     </div>
 
     <!-- Tables per status -->

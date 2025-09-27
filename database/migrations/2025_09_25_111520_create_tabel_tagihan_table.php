@@ -10,9 +10,13 @@ return new class extends Migration
     {
         Schema::create('tagihan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lembar_kerja_id')->constrained('lembar_kerja')->onDelete('cascade');
+            $table->foreignId('lembar_kerja_id')
+                  ->constrained('lembar_kerja')
+                  ->cascadeOnDelete();
+            $table->foreignId('kategori_id')
+                  ->constrained('keuangan_kategori')
+                  ->cascadeOnDelete(); // relasi ke kategori
             $table->date('tanggal');
-            $table->string('jenis'); // misal: Tagihan
             $table->decimal('total_tagihan', 15, 2);
             $table->date('jatuh_tempo');
             $table->string('metode_pembayaran'); // Transfer / Tunai / EDC

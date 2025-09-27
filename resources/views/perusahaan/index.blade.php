@@ -56,7 +56,7 @@
                     <tbody>
                         @forelse($perusahaans as $item)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                           <td>{{ $loop->iteration + $perusahaans->firstItem() - 1 }}</td>
                             <td>{{ $item->jenis_lembaga }}</td>
                             <td>{{ $item->nama_lembaga }}</td>
                             <td>{{ $item->email }}</td>
@@ -69,15 +69,16 @@
                                 <a href="{{ route('perusahaan.edit', $item->id) }}" class="btn btn-warning btn-icon btn-sm" title="Edit">
                                     <i class="mdi mdi-pencil-outline"></i>
                                 </a>
-                                <form action="{{ route('perusahaan.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin hapus?')">
-                                    @csrf
-                                    @method('DELETE')
-                                  <button type="button" class="btn btn-danger btn-icon btn-sm" 
-            onclick="confirmDelete(event, 'deleteForm{{ $item->id }}')" 
-            title="Hapus">
+                                <form id="deleteForm{{ $item->id }}" action="{{ route('perusahaan.destroy', $item->id) }}" method="POST" class="d-inline">
+    @csrf
+    @method('DELETE')
+    <button type="button" class="btn btn-danger btn-icon btn-sm" 
+        onclick="confirmDelete(event, 'deleteForm{{ $item->id }}', '{{ $item->nama_lembaga }}')" 
+        title="Hapus">
         <i class="mdi mdi-trash-can-outline"></i>
     </button>
-                                </form>
+</form>
+
                             </td>
                         </tr>
                         @empty
@@ -88,8 +89,10 @@
                     </tbody>
                 </table>
             </div>
+            <div class="d-flex justify-content-end">
+    {{ $perusahaans->withQueryString()->links('pagination::bootstrap-5') }}
+</div>
 
-            {{ $perusahaans->withQueryString()->links() }}
         </div>
     </div>
 </div>

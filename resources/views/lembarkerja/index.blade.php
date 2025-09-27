@@ -125,19 +125,21 @@
                             <td>{{ $lk->created_at ? \Carbon\Carbon::parse($lk->created_at)->format('d-m-Y') : '-' }}</td>
                             <td>{{ $lk->updated_at ? \Carbon\Carbon::parse($lk->updated_at)->format('d-m-Y') : '-' }}</td>
                             <td class="text-center">
-                                <a href="{{ route('lembar-kerja.edit', $lk->id) }}" 
-                                   class="btn btn-warning btn-icon btn-sm" title="Edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </a>
-                                <form action="{{ route('lembar-kerja.destroy', $lk->id) }}" method="POST" 
-                                      class="d-inline" onsubmit="return confirm('Hapus Lembar Kerja ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-icon btn-sm" title="Hapus">
-                                        <i class="mdi mdi-trash-can-outline"></i>
-                                    </button>
-                                </form>
-                            </td>
+    {{-- <a href="{{ route('lembar-kerja.edit', $lk->id) }}" 
+       class="btn btn-warning btn-icon btn-sm" title="Edit">
+        <i class="mdi mdi-pencil-outline"></i>
+    </a> --}}
+
+    <form id="deleteForm{{ $lk->id }}" action="{{ route('lembar-kerja.destroy', $lk->id) }}" method="POST" class="d-inline">
+        @csrf
+        @method('DELETE')
+        <button type="button" class="btn btn-danger btn-icon btn-sm" 
+                onclick="confirmDelete(event, 'deleteForm{{ $lk->id }}','{{ $lk->no_pesanan }}')" 
+                title="Hapus">
+            <i class="mdi mdi-trash-can-outline"></i>
+        </button>
+    </form>
+</td>
                         </tr>
                         @empty
                         <tr>
@@ -148,7 +150,7 @@
                 </table>
 
                 {{-- Pagination --}}
-                <div class="d-flex justify-content-end mt-3">
+                 <div class="d-flex justify-content-end">
                     {{ $lembarKerja->appends(request()->query())->links() }}
                 </div>
             </div>

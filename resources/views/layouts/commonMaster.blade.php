@@ -30,6 +30,8 @@
     {{-- SweetAlert2 CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+    <link href="https://cdn.materialdesignicons.com/7.1.96/css/materialdesignicons.min.css" rel="stylesheet">
+
     <style>
         /* CSS Variables untuk Konsistensi */
         :root {
@@ -420,6 +422,11 @@
             display: table;
             clear: both;
         }
+   .select2-dropdown-custom .select2-results__options {
+    max-height: 200px; /* tinggi maksimal dropdown */
+    overflow-y: auto;
+}
+
     </style>
 </head>
 

@@ -54,7 +54,7 @@
                     <tbody>
                         @forelse($bankLeasings as $item)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                           <td>{{ $loop->iteration +  $bankLeasings->firstItem() - 1 }}</td>
                             <td>{{ $item->nama_lembaga }}</td>
                             <td>{{ $item->cabang }}</td>
                             <td>{{ $item->no_pks }}</td>
@@ -71,14 +71,15 @@
                                 <a href="{{ route('bank-leasing.edit', $item->id) }}"  class="btn btn-warning btn-icon btn-sm" title="Edit">
 <i class="mdi mdi-pencil-outline"></i>
                                 </a>
-                                <form action="{{ route('bank-leasing.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin hapus?')">
-                                    @csrf
-                                    @method('DELETE')
-                                   <button type="button" class="btn btn-danger btn-icon btn-sm" 
-            onclick="confirmDelete(event, 'deleteForm{{ $item->id }}')" 
-            title="Hapus">
+                                                             <form id="deleteForm{{ $item->id }}" action="{{ route('bank-leasing.destroy', $item->id) }}" method="POST" class="d-inline">
+    @csrf
+    @method('DELETE')
+    <button type="button" class="btn btn-danger btn-icon btn-sm" 
+        onclick="confirmDelete(event, 'deleteForm{{ $item->id }}', '{{ $item->nama_lembaga }}')" 
+        title="Hapus">
         <i class="mdi mdi-trash-can-outline"></i>
     </button>
+</form>
 
                                 </form>
                             </td>
@@ -91,8 +92,9 @@
                     </tbody>
                 </table>
             </div>
-
-            {{ $bankLeasings->withQueryString()->links() }}
+ <div class="d-flex justify-content-end">
+    {{  $bankLeasings->withQueryString()->links('pagination::bootstrap-5') }}
+</div>
         </div>
     </div>
 </div>

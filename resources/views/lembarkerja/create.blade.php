@@ -59,16 +59,18 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label>Layanan <span class="text-danger">*</span></label>
-                                <select name="layanan_id" class="form-control" required>
-                                    <option value="">-- Pilih Layanan --</option>
-                                    @foreach($layanan as $l)
-                                        <option value="{{ $l->id }}">{{ $l->nama_layanan }}</option>
-                                    @endforeach
-                                </select>
+                               <select name="layanan_id" id="layananSelect" class="form-control" required>
+    <option value="">-- Pilih Layanan --</option>
+    @foreach($layanan as $l)
+        <option value="{{ $l->id }}">{{ $l->nama_layanan }}</option>
+    @endforeach
+</select>
+
+
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Tanggal Target</label>
-                                <input type="date" name="tgl_target" class="form-control">
+                                <label>Target Selesai</label>
+                               <input type="date" name="tgl_target" id="tglTarget" class="form-control">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label>Keterangan</label>
@@ -254,6 +256,22 @@ document.addEventListener('DOMContentLoaded', function(){
     klienSelect.addEventListener('change', function(){
         tipePelanggan.value = this.options[this.selectedIndex].dataset.tipe || '';
     });
+// Tanggal Otomatis
+const layananSelect = document.getElementById('layananSelect');
+const tglTarget = document.getElementById('tglTarget');
+
+layananSelect.addEventListener('change', function() {
+    if (this.value) {
+        // Ambil tanggal hari ini
+        let today = new Date();
+        let yyyy = today.getFullYear();
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let dd = String(today.getDate()).padStart(2, '0');
+        tglTarget.value = `${yyyy}-${mm}-${dd}`;
+    } else {
+        tglTarget.value = '';
+    }
+});
 
     // Form Order Modal ke Tabel Review
     const formOrderModal = document.getElementById('formOrderModal');

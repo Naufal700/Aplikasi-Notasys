@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\lembarkerja\LembarKerja;
 use App\Models\lembarkerja\LogAktivitas;
+use App\Models\keuangan\KeuanganKategori;
 use App\Models\lembarkerja\LembarSetting;
 use App\Models\lembarkerja\LembarFormOrder;
 use App\Models\lembarkerja\LembarPenghadap;
@@ -182,19 +183,22 @@ class LembarKerjaController extends Controller
     $sisaTagihan = $totalTagihan - $totalDibayar;
 
     $aktaList = ['Akta Jual Beli', 'Akta Hibah', 'Akta Waris', 'Akta Pendirian PT'];
+$kategoriKeuangan = KeuanganKategori::all();
 
     return view('lembarKerja.edit', compact(
-        'lembarKerja',
-        'klien',
-        'layanan',
-        'templates',
-        'opsiFormOrder',
-        'aktaList',
-        'selectedPenghadap',
-        'totalTagihan',
-        'totalDibayar',
-        'sisaTagihan'
-    ));
+    'lembarKerja',
+    'klien',
+    'layanan',
+    'templates',
+    'opsiFormOrder',
+    'aktaList',
+    'selectedPenghadap',
+    'totalTagihan',
+    'totalDibayar',
+    'sisaTagihan',
+    'kategoriKeuangan'
+));
+
 }
 
     // Update Lembar Kerja
@@ -416,34 +420,40 @@ $this->logAktivitas('Update Proses', "Proses ID: {$proses->id}, Nama: {$proses->
         ], 404);
     }
 }
+
 // Simpan Tagihan dari modal
 public function storeTagihan(Request $request, $id)
-    {
-        \Log::info("Request Tagihan:", $request->all());
+{
+    \Log::info("Request Tagihan:", $request->all());
 
-        // Validasi
-        $validated = $request->validate([
-            'tanggal' => 'required|date',
-            'jenis' => 'required|string',
-            'total_tagihan' => 'required|numeric|min:0',
-            'jatuh_tempo' => 'required|date',
-            'metode_pembayaran' => 'required|string',
-            'keterangan' => 'nullable|string',
-        ]);
+    // Validasi
+    $validated = $request->validate([
+        'kategori_id' => 'required|exists:keuangan_kategori,id', // ganti jenis jadi kategori
+        'tanggal' => 'required|date',
+        'total_tagihan' => 'required|numeric|min:0',
+        'jatuh_tempo' => 'required|date',
+        'metode_pembayaran' => 'required|string',
+        'keterangan' => 'nullable|string',
+    ]);
 
-        // Cari Lembar Kerja
-        $lembarKerja = LembarKerja::findOrFail($id);
+    // Cari Lembar Kerja
+    $lembarKerja = LembarKerja::findOrFail($id);
 
-        // Simpan tagihan
-        $tagihan = $lembarKerja->tagihan()->create($validated);
- $this->logAktivitas('Tambah Tagihan', "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan: {$tagihan->total_tagihan}");
-        // Response JSON
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Tagihan berhasil ditambahkan!',
-            'tagihan' => $tagihan
-        ]);
-    }
+    // Simpan tagihan
+    $tagihan = $lembarKerja->tagihan()->create($validated);
+
+    $this->logAktivitas(
+        'Tambah Tagihan', 
+        "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan: {$tagihan->total_tagihan}, Kategori: {$tagihan->kategori->nama_kategori}"
+    );
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Tagihan berhasil ditambahkan!',
+        'tagihan' => $tagihan
+    ]);
+}
+
     public function destroyTagihan($lembarKerjaId, $tagihanId)
 {
     $tagihan = Tagihan::where('lembar_kerja_id', $lembarKerjaId)->findOrFail($tagihanId);
@@ -461,8 +471,23 @@ public function storeTagihan(Request $request, $id)
 public function updateTagihan(Request $request, $lembarKerjaId, $tagihanId)
 {
     $tagihan = Tagihan::where('lembar_kerja_id', $lembarKerjaId)->findOrFail($tagihanId);
-    $tagihan->update($request->only(['tanggal','total_tagihan','jatuh_tempo','metode_pembayaran','keterangan']));
-$this->logAktivitas('Update Tagihan', "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}");
+
+    $validated = $request->validate([
+        'kategori_id' => 'required|exists:keuangan_kategori,id',
+        'tanggal' => 'required|date',
+        'total_tagihan' => 'required|numeric|min:0',
+        'jatuh_tempo' => 'required|date',
+        'metode_pembayaran' => 'required|string',
+        'keterangan' => 'nullable|string',
+    ]);
+
+    $tagihan->update($validated);
+
+    $this->logAktivitas(
+        'Update Tagihan', 
+        "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}, Kategori: {$tagihan->kategori->nama_kategori}"
+    );
+
     return response()->json([
         'status' => 'success',
         'message' => 'Tagihan berhasil diupdate',
@@ -477,7 +502,6 @@ protected function logAktivitas($aktivitas, $detail = null)
         'detail' => $detail,
     ]);
 }
-// Tambahkan di dalam class LembarKerjaController
 
 /**
  * Dashboard Lembar Kerja
@@ -520,7 +544,7 @@ public function dashboard()
     // Ambil log aktivitas terbaru 10
     $logs = LogAktivitas::with('user')
         ->orderBy('created_at', 'desc')
-        ->take(10)
+        ->take(5)
         ->get();
 
     // Kirim semua data ke view
@@ -534,5 +558,21 @@ public function dashboard()
         'logs'
     ));
 }
+public function updateStatus(Request $request, $id)
+{
+    $lembarKerja = LembarKerja::findOrFail($id);
 
+    $request->validate([
+        'status' => 'required|string|in:draft,persetujuan,pembayaran'
+    ]);
+
+    $lembarKerja->status = $request->status;
+    $lembarKerja->save();
+
+    return response()->json([
+        'success' => true,
+        'status' => $lembarKerja->status,
+        'message' => 'Status berhasil diperbarui'
+    ]);
+}
 }

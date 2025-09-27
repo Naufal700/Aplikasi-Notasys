@@ -50,12 +50,12 @@
                         <div class="mb-3 row border rounded p-3 align-items-center" id="bankLeasingWrapper" style="display: none;">
                             <label class="form-label col-md-2 fw-semibold">Bank/Leasing</label>
                             <div class="col-md-4 d-flex gap-2 align-items-center">
-                                <select name="bank_leasing_id" id="bank_leasing_id" class="form-select">
-                                    <option value="">-- Pilih Bank/Leasing --</option>
-                                    @foreach($bankLeasing as $bl)
-                                        <option value="{{ $bl->id }}" {{ old('bank_leasing_id')==$bl->id ? 'selected' : '' }}>{{ $bl->nama_lembaga }}</option>
-                                    @endforeach
-                                </select>
+                                <select name="bank_leasing_id" id="bank_leasing_id" class="form-select select2" data-placeholder="Cari Bank/Leasing">
+    <option value=""></option>
+    @foreach($bankLeasing as $bl)
+        <option value="{{ $bl->id }}" {{ old('bank_leasing_id')==$bl->id ? 'selected' : '' }}>{{ $bl->nama_lembaga }}</option>
+    @endforeach
+</select>
                                 <a href="#" id="editBankBtn" class="btn btn-outline-secondary btn-sm disabled">
                                     <i class="mdi mdi-pencil-outline"></i>
                                 </a>
@@ -66,12 +66,12 @@
                         <div class="mb-3 row border rounded p-3 align-items-center" id="perusahaanWrapper" style="display: none;">
                             <label class="form-label col-md-2 fw-semibold">Perusahaan</label>
                             <div class="col-md-4 d-flex gap-2 align-items-center">
-                                <select name="perusahaan_id" id="perusahaan_id" class="form-select">
-                                    <option value="">-- Pilih Perusahaan --</option>
-                                    @foreach($perusahaan as $p)
-                                        <option value="{{ $p->id }}" {{ old('perusahaan_id')==$p->id ? 'selected' : '' }}>{{ $p->nama_lembaga }}</option>
-                                    @endforeach
-                                </select>
+                                <select name="perusahaan_id" id="perusahaan_id" class="form-select select2" data-placeholder="Cari Perusahaan">
+    <option value=""></option>
+    @foreach($perusahaan as $p)
+        <option value="{{ $p->id }}" {{ old('perusahaan_id')==$p->id ? 'selected' : '' }}>{{ $p->nama_lembaga }}</option>
+    @endforeach
+</select>
                                 <a href="#" id="editPerusahaanBtn" class="btn btn-outline-secondary btn-sm disabled">
                                     <i class="mdi mdi-pencil-outline"></i>
                                 </a>
@@ -224,16 +224,19 @@
 $(document).ready(function(){
 
     // ====== Select2 Alamat KTP ======
-    function initSelect2(selector, placeholder){
-        $(selector).select2({
-            theme: 'bootstrap-5',
-            placeholder: placeholder,
-            width: '100%',
-            dropdownParent: $(selector).closest('.card-body')
-        });
-    }
-    initSelect2('#provinsi_id', 'Cari Provinsi');
-    initSelect2('#kabupaten_id', 'Cari Kabupaten');
+       // ====== Select2 & Load Kabupaten ======
+   function initSelect2Scrollable(selector, placeholder){
+    $(selector).select2({
+        theme: 'bootstrap-5',
+        placeholder: placeholder,
+        width: '100%',
+        dropdownParent: $(selector).closest('.card-body'),
+        dropdownCssClass: 'select2-dropdown-custom'
+    });
+}
+
+initSelect2Scrollable('#provinsi_id', 'Cari Provinsi');
+initSelect2Scrollable('#kabupaten_id', 'Cari Kabupaten');
 
     // Load kabupaten berdasarkan provinsi
     function loadKabupaten(provinsiId = null, selectedId = null){
@@ -338,6 +341,21 @@ $(document).ready(function(){
     }
     updateEditLink('#bank_leasing_id', '#editBankBtn', 'bank-leasing');
     updateEditLink('#perusahaan_id', '#editPerusahaanBtn', 'perusahaan');
+    // ====== Select2 Bank/Leasing & Perusahaan ======
+function initSelect2WithScroll(selector, placeholder){
+    $(selector).select2({
+        theme: 'bootstrap-5',
+        placeholder: placeholder,
+        width: '100%',
+        dropdownParent: $(selector).closest('.card-body'),
+        // limit visible options, scrollable
+        dropdownCssClass: "select2-dropdown-custom",
+    });
+}
+
+initSelect2WithScroll('#bank_leasing_id', 'Cari Bank/Leasing');
+initSelect2WithScroll('#perusahaan_id', 'Cari Perusahaan');
+
 
 });
 </script>

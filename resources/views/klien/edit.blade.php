@@ -242,17 +242,18 @@
 $(document).ready(function(){
 
     // ====== Select2 & Load Kabupaten ======
-    function initSelect2(selector, placeholder){
-        $(selector).select2({
-            theme: 'bootstrap-5',
-            placeholder: placeholder,
-            width: '100%',
-            dropdownParent: $(selector).closest('.form-group, .card-body')
-        });
-    }
+   function initSelect2Scrollable(selector, placeholder){
+    $(selector).select2({
+        theme: 'bootstrap-5',
+        placeholder: placeholder,
+        width: '100%',
+        dropdownParent: $(selector).closest('.card-body'),
+        dropdownCssClass: 'select2-dropdown-custom'
+    });
+}
 
-    initSelect2('#provinsi_id', 'Cari Provinsi');
-    initSelect2('#kabupaten_id', 'Cari Kabupaten');
+initSelect2Scrollable('#provinsi_id', 'Cari Provinsi');
+initSelect2Scrollable('#kabupaten_id', 'Cari Kabupaten');
 
     function loadKabupaten(provinsiId = null, selectedId = null){
         $('#kabupaten_id').empty().append('<option value=""></option>');
@@ -344,7 +345,19 @@ $(document).ready(function(){
         $('.editableField').prop('disabled', false);
         $(this).prop('disabled', true);
     });
+function initSelect2WithScroll(selector, placeholder){
+    $(selector).select2({
+        theme: 'bootstrap-5',
+        placeholder: placeholder,
+        width: '100%',
+        dropdownParent: $(selector).closest('.card-body'),
+        // limit visible options, scrollable
+        dropdownCssClass: "select2-dropdown-custom",
+    });
+}
 
+initSelect2WithScroll('#bank_leasing_id', 'Cari Bank/Leasing');
+initSelect2WithScroll('#perusahaan_id', 'Cari Perusahaan');
 });
 </script>
 @endpush

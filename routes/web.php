@@ -1,11 +1,14 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use App\Http\Controllers\klien\KlienController;
 use App\Http\Controllers\klien\PerusahaanController;
+use App\Http\Controllers\keuangan\KeuanganController;
 use App\Http\Controllers\klien\BankLeasingController;
+use App\Http\Controllers\jenisakta\JenisAktaController;
+use App\Http\Controllers\keuangan\MasterKasBankController;
 use App\Http\Controllers\lembarkerja\LembarKerjaController;
 
 /*
@@ -109,6 +112,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function() {
         return view('content.dashboard.dashboards-analytics');
     })->name('dashboard');
+
+//  Route Maste Jenis Akta
+Route::prefix('jenis')->group(function () {
+    Route::resource('akta', JenisAktaController::class)
+        ->names([
+            'index'   => 'jenis.akta.index',
+            'create'  => 'jenis.akta.create',
+            'store'   => 'jenis.akta.store',
+            'edit'    => 'jenis.akta.edit',
+            'update'  => 'jenis.akta.update',
+            'destroy' => 'jenis.akta.destroy',
+        ])
+        ->parameters(['akta' => 'jenis_akta']); // <<< penting
+});
+
 
     /*
     |--------------------------------------------------------------------------
@@ -216,6 +234,26 @@ Route::prefix('lembar-kerja')->name('lembar-kerja.')->group(function() {
     Route::delete('/proses/{proses}', [LembarKerjaController::class, 'destroyProses'])->name('proses.destroy');
     Route::get('/{lembarKerja}/proses', [LembarKerjaController::class, 'getProses'])->name('proses.index');
     Route::get('/proses/{proses}', [LembarKerjaController::class, 'showProses'])->name('proses.show');
+});
+Route::patch('/lembar-kerja/{id}/update-status', [LembarKerjaController::class, 'updateStatus'])
+    ->name('lembar-kerja.update-status');
+// route keuangan
+Route::prefix('keuangan')->group(function () {
+    Route::get('/', [KeuanganController::class, 'index'])->name('keuangan.index');
+    Route::get('cetak/{id}', [KeuanganController::class, 'printTagihan'])->name('tagihan.print');
+});
+// Master Kas Bank
+Route::prefix('keuangan/master')->group(function() {
+    Route::resource('kasbank', MasterKasBankController::class, [
+        'names' => [
+            'index' => 'master.kasbank.index',
+            'create' => 'master.kasbank.create',
+            'store' => 'master.kasbank.store',
+            'edit' => 'master.kasbank.edit',
+            'update' => 'master.kasbank.update',
+            'destroy' => 'master.kasbank.destroy',
+        ]
+    ]);
 });
 
 });

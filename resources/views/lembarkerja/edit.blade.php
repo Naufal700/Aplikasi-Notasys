@@ -1,6 +1,6 @@
 @extends('layouts.commonMaster')
 
-@section('title', 'Edit Lembar Kerja')
+@section('title', 'Detail Lembar Kerja')
 
 @section('layoutContent')
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -11,7 +11,7 @@
             <div class="mb-2 mb-md-0">
                 <h5 class="fw-bold mb-1">
                     <i data-feather="edit-3" class="me-1"></i>
-                    Edit Lembar Kerja — {{ $lembarKerja->nama_lembar ?? '-' }}
+                    Detail Lembar Kerja — {{ $lembarKerja->nama_lembar ?? '-' }}
                 </h5>
                 <div class="d-flex flex-wrap gap-2 mt-2">
     <span class="badge bg-info text-dark small">
@@ -30,18 +30,50 @@
 
             </div>
 
-            {{-- Button Action --}}
-            <div class="d-flex gap-2 flex-wrap">
-                <button type="button" class="btn btn-sm btn-success" id="btnAjukanAktivasi">
-                    <i data-feather="send" class="me-1"></i> Ajukan Aktivasi
-                </button>
-                <button type="button" class="btn btn-sm btn-danger" id="btnBatalkan">
-                    <i data-feather="x-circle" class="me-1"></i> Batalkan
-                </button>
-                <a href="{{ route('lembar-kerja.print', $lembarKerja->id) }}" target="_blank" class="btn btn-sm btn-primary">
-                    <i data-feather="printer" class="me-1"></i> Print PDF
-                </a>
-            </div>
+{{-- Button Action --}}
+<div class="d-flex gap-2 flex-wrap">
+    @php
+        $showBtn = false;
+        $btnLabel = '';
+        $btnClass = '';
+        $btnDataStatus = '';
+        $btnIcon = '';
+
+        if($lembarKerja->status === 'draft') {
+            $showBtn = true;
+            $btnLabel = 'Ajukan Aktivasi';
+            $btnClass = 'btn-success';
+            $btnDataStatus = 'aktivasi';
+            $btnIcon = 'send';
+        } elseif($lembarKerja->status === 'persetujuan' && ($totalTagihan ?? 0) > 0) {
+            $showBtn = true;
+            $btnLabel = 'Penerimaan Pembayaran';
+            $btnClass = 'btn-success';
+            $btnDataStatus = 'pembayaran';
+            $btnIcon = 'dollar-sign';
+        } elseif($lembarKerja->status === 'persetujuan') {
+            $showBtn = true;
+            $btnLabel = 'Tagihan';
+            $btnClass = 'btn-primary';
+            $btnDataStatus = 'tambahTagihan';
+            $btnIcon = 'plus-circle';
+        }
+    @endphp
+
+    @if($showBtn)
+    <button type="button" class="btn btn-sm {{ $btnClass }}" id="btnAjukanAktivasi" data-status="{{ $btnDataStatus }}">
+        <i data-feather="{{ $btnIcon }}" class="me-1"></i> {{ $btnLabel }}
+    </button>
+    @endif
+
+    <button type="button" class="btn btn-sm btn-danger" id="btnBatalkan">
+        <i data-feather="x-circle" class="me-1"></i> Batalkan
+    </button>
+    <a href="{{ route('lembar-kerja.print', $lembarKerja->id) }}" target="_blank" class="btn btn-sm btn-primary">
+        <i data-feather="printer" class="me-1"></i> Print PDF
+    </a>
+</div>
+
         </div>
     </div>
 
@@ -132,9 +164,25 @@
                 <label>Tanggal <span class="text-danger">*</span></label>
                 <input type="date" class="form-control" name="tanggal" required>
             </div>
-           <div class="mb-3">
-    <label>Jenis <span class="text-danger">*</span></label>
-    <input type="text" class="form-control" name="jenis" value="Tagihan" readonly>
+
+          <div class="mb-3">
+    <label>Kategori <span class="text-danger">*</span></label>
+    {{-- Select hanya tampil, tidak bisa diubah --}}
+    <select class="form-select" disabled>
+        @foreach($kategoriKeuangan as $kategori)
+            <option value="{{ $kategori->id }}"
+                {{ $kategori->nama_kategori === 'Tagihan' ? 'selected' : '' }}>
+                {{ $kategori->nama_kategori }}
+            </option>
+        @endforeach
+    </select>
+
+    {{-- Hidden input agar value tetap dikirim ke server --}}
+    @foreach($kategoriKeuangan as $kategori)
+        @if($kategori->nama_kategori === 'Tagihan')
+            <input type="hidden" name="kategori_id" value="{{ $kategori->id }}">
+        @endif
+    @endforeach
 </div>
 
             <div class="mb-3">
@@ -176,19 +224,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     if(window.feather) feather.replace();
 
-    // ================= TAB LOGIC =================
-    let activeTab = localStorage.getItem("activeTab");
-    if (activeTab) {
-        let tabTrigger = document.querySelector('[data-bs-target="' + activeTab + '"]');
-        if (tabTrigger) new bootstrap.Tab(tabTrigger).show();
-    }
-    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(btn => {
-        btn.addEventListener("shown.bs.tab", function (event) {
-            localStorage.setItem("activeTab", event.target.getAttribute("data-bs-target"));
-        });
-    });
-
-    // ================= MODAL AJUKAN / TAGIHAN =================
     const btnAjukan = document.getElementById('btnAjukanAktivasi');
     const modalAktivasiEl = document.getElementById('modalAjukanAktivasi');
     const modalAktivasi = new bootstrap.Modal(modalAktivasiEl);
@@ -198,32 +233,61 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalTagihan = new bootstrap.Modal(modalTagihanEl);
     const formTambahTagihan = document.getElementById('formTambahTagihan');
 
-    btnAjukan.addEventListener('click', function() {
-        if(btnAjukan.dataset.status !== "tambahTagihan"){
-            modalAktivasi.show();
-        } else {
-            modalTagihan.show();
-        }
-    });
+    if(btnAjukan){
+        btnAjukan.addEventListener('click', function() {
+            if(btnAjukan.dataset.status === "tambahTagihan"){
+                modalTagihan.show();
+            } else {
+                modalAktivasi.show();
+            }
+        });
 
-    btnSubmitAktivasi.addEventListener('click', function() {
-        modalAktivasi.hide();
-        btnAjukan.innerHTML = '<i data-feather="plus-circle" class="me-1"></i> Tagihan';
-        btnAjukan.classList.remove("btn-success");
-        btnAjukan.classList.add("btn-primary");
-        btnAjukan.dataset.status = "tambahTagihan";
-        if(window.feather) feather.replace();
-    });
+        btnSubmitAktivasi.addEventListener('click', async function() {
+            // Kirim request update status ke server (AJAX)
+            try {
+                const res = await fetch("{{ route('lembar-kerja.update-status', $lembarKerja->id) }}", {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ status: 'persetujuan' })
+                });
+                const data = await res.json();
+
+                if(!res.ok){
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Server error' });
+                    return;
+                }
+
+                // Tutup modal
+                modalAktivasi.hide();
+
+                // Update badge status di UI
+                const badgeStatus = document.querySelector('.badge.bg-info');
+                if(badgeStatus) badgeStatus.textContent = "Status: persetujuan";
+
+                // Ubah button jadi tambah tagihan
+                btnAjukan.innerHTML = '<i data-feather="plus-circle" class="me-1"></i> Tagihan';
+                btnAjukan.classList.remove("btn-success");
+                btnAjukan.classList.add("btn-primary");
+                btnAjukan.dataset.status = "tambahTagihan";
+
+                if(window.feather) feather.replace();
+
+            } catch(err){
+                console.error(err);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan!' });
+            }
+        });
+    }
 
     // ================= TAMBAH TAGIHAN =================
     formTambahTagihan.addEventListener('submit', async function(e){
         e.preventDefault();
 
-        const formData = new FormData();
-        modalTagihanEl.querySelectorAll('input[name], select[name], textarea[name]').forEach(el => {
-            formData.append(el.name, el.value);
-        });
-        formData.append('_token', "{{ csrf_token() }}");
+        const formData = new FormData(formTambahTagihan);
 
         try {
             const res = await fetch("{{ route('lembar-kerja.tagihan.store', $lembarKerja->id) }}", {
@@ -231,39 +295,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { 'Accept': 'application/json' },
                 body: formData
             });
-
             const data = await res.json();
 
-            // ================= VALIDASI =================
             if(res.status === 422){
                 const messages = Object.values(data.errors).map(e => e.join(', ')).join('<br>');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validasi Gagal',
-                    html: messages
-                });
+                Swal.fire({ icon: 'error', title: 'Validasi Gagal', html: messages });
                 return;
             }
-
-            // ================= CEK SERVER ERROR =================
             if(!res.ok){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Terjadi Kesalahan!',
-                    text: data.message || 'Server error, coba lagi!',
-                    toast: true,
-                    position: 'top-end'
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Server error' });
                 return;
             }
 
-            // ================= KIRIM EVENT KE TAB KEUANGAN =================
-            const event = new CustomEvent('tagihanAdded', { detail: data.tagihan });
-            document.getElementById('tab-keuangan').dispatchEvent(event);
-
-            // Reset form dan tutup modal
+            // Reset form & tutup modal
             formTambahTagihan.reset();
             modalTagihan.hide();
+
+            // Ubah button jadi Penerimaan Pembayaran
+            btnAjukan.innerHTML = '<i data-feather="dollar-sign" class="me-1"></i> Penerimaan Pembayaran';
+            btnAjukan.classList.remove("btn-primary");
+            btnAjukan.classList.add("btn-success");
+            btnAjukan.dataset.status = "pembayaran";
+
+            if(window.feather) feather.replace();
+
+            // Event update tab keuangan
+            const event = new CustomEvent('tagihanAdded', { detail: data.tagihan });
+            document.getElementById('tab-keuangan').dispatchEvent(event);
 
             Swal.fire({
                 icon: 'success',
@@ -277,16 +335,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch(err){
             console.error(err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Terjadi Kesalahan!',
-                text: 'Server error, coba lagi!',
-                toast: true,
-                position: 'top-end'
-            });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan!' });
         }
     });
-
 });
+
 </script>
 @endpush

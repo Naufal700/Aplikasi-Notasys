@@ -71,14 +71,14 @@
           "slug": "keuangan-dashboard"
         },
         {
-          "url": "/keuangan/keuangan",
+          "url": "/keuangan",
           "name": "Keuangan",
-          "slug": "keuangan-main"
+          "slug": "keuangan.index"
         },
         {
-          "url": "/keuangan/kas-bank",
+          "url": "/keuangan/master/kasbank",
           "name": "Kas & Bank",
-          "slug": "keuangan-kas-bank"
+          "slug": "master.kasbank.index"
         }
       ]
     },
@@ -99,12 +99,12 @@
         },
         {
           "name": "Jenis",
-          "slug": "master-data-jenis",
+          "slug": "jenis",
           "submenu": [
             {
-              "url": "/master-data/jenis/akta",
+              "url": "jenis/akta",
               "name": "Akta",
-              "slug": "jenis-akta"
+              "slug": "jenis.akta.index"
             },
             {
               "url": "/master-data/jenis/pajak",
