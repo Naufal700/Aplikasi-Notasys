@@ -148,7 +148,7 @@ class LembarKerjaController extends Controller
                 ]));
             }
         }
-  $this->logAktivitas('Buat Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}, Nama: {$lembarKerja->nama_lembar}");
+  $this->logAktivitas('Buat Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}, Nama: {$lembarKerja->nama_lembar}" ,'Lembar Kerja');
         return redirect()->route('lembar-kerja.index')->with('success', 'Lembar Kerja berhasil dibuat dengan status DRAFT.');
     }
 
@@ -269,14 +269,14 @@ $kategoriKeuangan = KeuanganKategori::all();
                 ]));
             }
         }
-$this->logAktivitas('Update Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}");
+ $this->logAktivitas('Update Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}, Nama: {$lembarKerja->nama_lembar}",'Lembar Kerja');
         return redirect()->route('lembar-kerja.index')->with('success', 'Lembar Kerja berhasil diupdate.');
     }
 
     // Delete
     public function destroy(LembarKerja $lembarKerja)
     {
-       $this->logAktivitas('Hapus Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}");
+       $this->logAktivitas('Hapus Lembar Kerja', "No Pesanan: {$lembarKerja->no_pesanan}, Nama: {$lembarKerja->nama_lembar}",'Lembar Kerja');
 $lembarKerja->delete();
         return redirect()->route('lembar-kerja.index')->with('success', 'Lembar Kerja berhasil dihapus.');
     }
@@ -401,7 +401,7 @@ $this->logAktivitas('Update Proses', "Proses ID: {$proses->id}, Nama: {$proses->
     // Hapus proses
     public function destroyProses(ProsesLembarKerja $proses)
     {
-        $this->logAktivitas('Hapus Proses', "Proses ID: {$proses->id}, Nama: {$proses->nama_proses}");
+        $this->logAktivitas('Hapus Proses', "Proses ID: {$proses->id}, Nama: {$proses->nama_proses}",'Lembar Kerja');
     $proses->delete();
         return response()->json(['status' => 'success']);
     }
@@ -444,7 +444,7 @@ public function storeTagihan(Request $request, $id)
 
     $this->logAktivitas(
         'Tambah Tagihan', 
-        "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan: {$tagihan->total_tagihan}, Kategori: {$tagihan->kategori->nama_kategori}"
+        "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan: {$tagihan->total_tagihan}, Kategori: {$tagihan->kategori->nama_kategori}", 'Lembar Kerja'
     );
 
     return response()->json([
@@ -458,7 +458,7 @@ public function storeTagihan(Request $request, $id)
 {
     $tagihan = Tagihan::where('lembar_kerja_id', $lembarKerjaId)->findOrFail($tagihanId);
     $total = $tagihan->total_tagihan;
-  $this->logAktivitas('Hapus Tagihan', "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}");
+  $this->logAktivitas('Hapus Tagihan', "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}",'Lembar Kerja');
     $tagihan->delete();
 
     return response()->json([
@@ -485,7 +485,7 @@ public function updateTagihan(Request $request, $lembarKerjaId, $tagihanId)
 
     $this->logAktivitas(
         'Update Tagihan', 
-        "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}, Kategori: {$tagihan->kategori->nama_kategori}"
+        "Lembar: {$tagihan->lembarKerja->no_pesanan}, Tagihan ID: {$tagihan->id}, Kategori: {$tagihan->kategori->nama_kategori}",'Lembar Kerja'
     );
 
     return response()->json([
@@ -494,12 +494,13 @@ public function updateTagihan(Request $request, $lembarKerjaId, $tagihanId)
         'tagihan' => $tagihan
     ]);
 }
-protected function logAktivitas($aktivitas, $detail = null)
+protected function logAktivitas($aktivitas, $detail = null, $modul = null)
 {
     LogAktivitas::create([
         'user_id' => Auth::id(),
         'aktivitas' => $aktivitas,
         'detail' => $detail,
+        'modul' => $modul
     ]);
 }
 
@@ -559,7 +560,8 @@ public function dashboard(Request $request)
 
     // Ambil log aktivitas terbaru 10 bulan tersebut
     $logs = LogAktivitas::with('user')
-        ->whereMonth('created_at', $selectedMonth)
+    ->where('modul','Lembar Kerja')   
+    ->whereMonth('created_at', $selectedMonth)
         ->orderBy('created_at', 'desc')
         ->take(10)
         ->get();

@@ -149,13 +149,13 @@
     {
       "name": "Aktivitas User",
       "icon": "menu-icon tf-icons mdi mdi-account-clock-outline",
-      "slug": "aktivitas-user",
-      "url": "/aktivitas-user"
+      "slug": "aktivitas.index",
+      "url": "/aktivitas"
     },
     {
       "name": "Setting",
       "icon": "menu-icon tf-icons mdi mdi-cog-outline",
-      "slug": "setting",
+      "slug": "setting.index",
       "url": "/setting"
     }
   ]

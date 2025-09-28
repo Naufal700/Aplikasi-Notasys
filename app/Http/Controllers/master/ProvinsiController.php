@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers\master;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\daerah\Provinsi;
+use App\Models\daerah\Kabupaten;
+use App\Http\Controllers\Controller;
 
 class ProvinsiController extends Controller
 {
     // Tampilkan daftar provinsi
-    public function index()
-    {
-        $provinsi = Provinsi::orderBy('nama')->paginate(10); // Pagination
-        return view('provinsi.index', compact('provinsi'));
-    }
+   public function index()
+{
+    $provinsi = Provinsi::withCount('kabupaten') // Asumsi ada relasi kabupaten
+        ->orderBy('nama')
+        ->paginate(10);
+
+    $totalKabupaten = Kabupaten::count(); // Total semua kabupaten
+
+    return view('provinsi.index', compact('provinsi', 'totalKabupaten'));
+}
 
     // Form tambah provinsi
     public function create()

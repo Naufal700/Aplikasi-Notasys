@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\klien;
 
-use App\Http\Controllers\Controller;
 use App\Models\daerah\Kota;
-use App\Models\daerah\Kabupaten;
-use App\Models\daerah\Provinsi;
 use App\Models\klien\Klien;
-use App\Models\klien\KlienDokumen;
-use App\Models\klien\BankLeasing;
-use App\Models\klien\Perusahaan;
 use Illuminate\Http\Request;
+use App\Models\daerah\Provinsi;
+use App\Models\daerah\Kabupaten;
+use App\Models\klien\Perusahaan;
+use App\Models\klien\BankLeasing;
+use App\Models\klien\KlienDokumen;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\lembarkerja\LogAktivitas;
 
 class KlienController extends Controller
 {
@@ -108,6 +110,7 @@ class KlienController extends Controller
             }
 
             DB::commit();
+            $this->logAktivitas('Tambah Klien', 'Nama: '.$klien->nama, 'Klien');
             return redirect()->route('klien.index')->with('success', 'Klien berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -176,6 +179,7 @@ class KlienController extends Controller
             }
 
             DB::commit();
+            $this->logAktivitas('Update Klien', 'Nama: '.$klien->nama.' (ID: '.$klien->id.')', 'Klien');
             return redirect()->route('klien.index')->with('success', 'Klien berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -184,12 +188,17 @@ class KlienController extends Controller
     }
 
     // Hapus klien
-    public function destroy(Klien $klien)
-    {
-        $klien->delete();
-        return redirect()->route('klien.index')->with('success', 'Klien berhasil dihapus.');
-    }
+   public function destroy(Klien $klien)
+{
+    $nama = $klien->nama;
+    $id = $klien->id;
 
+    $klien->delete();
+
+    $this->logAktivitas('Hapus Klien', "Nama: {$nama} (ID: {$id})", 'Klien');
+
+    return redirect()->route('klien.index')->with('success', 'Klien berhasil dihapus.');
+}
     // Ambil kabupaten berdasarkan provinsi
     public function getKabupaten(Request $request)
     {
@@ -289,5 +298,14 @@ class KlienController extends Controller
         'pribadiData', 'bankLeasingData', 'perusahaanData',
         'growthData', 'months', 'selectedMonth'
     ));
+}
+protected function logAktivitas($aktivitas, $detail = null, $modul = null)
+{
+    LogAktivitas::create([
+        'user_id' => Auth::id(),
+        'aktivitas' => $aktivitas,
+        'detail' => $detail,
+        'modul' => $modul,
+    ]);
 }
 }

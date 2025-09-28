@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\klien\KlienController;
 use App\Http\Controllers\master\PartnerController;
 use App\Http\Controllers\master\ProvinsiController;
+use App\Http\Controllers\setting\SettingController;
 use App\Http\Controllers\klien\PerusahaanController;
 use App\Http\Controllers\master\KabupatenController;
 use App\Http\Controllers\keuangan\KeuanganController;
@@ -298,5 +299,25 @@ Route::prefix('kabupaten')->name('kabupaten.')->group(function () {
 
     // Endpoint AJAX untuk ambil kabupaten berdasarkan provinsi
     Route::get('/provinsi/{provinsi_id}', [KabupatenController::class, 'getByProvinsi'])->name('getByProvinsi');
+});
+// Route Log Aktivitas
+Route::get('/aktivitas', [App\Http\Controllers\LogAktivitasController::class, 'index'])
+    ->name('aktivitas.index')
+    ->middleware('auth');
+// Route Setting
+Route::prefix('setting')->group(function(){
+
+    // Halaman setting (index)
+    Route::get('/', [SettingController::class, 'index'])->name('setting.index');
+
+    // Simpan Profil Notaris
+    Route::post('/profil-notaris', [SettingController::class, 'saveProfilNotaris'])->name('setting.profil_notaris.save');
+
+    // Ambil kabupaten berdasarkan provinsi (AJAX)
+    Route::get('/get-kabupaten', [SettingController::class, 'getKabupaten'])->name('setting.get_kabupaten');
+
+    // Tambahan route tab lain bisa ditambah di sini
+    // Route::post('/tab-lain', [SettingController::class, 'saveTabLain'])->name('setting.tab_lain.save');
+
 });
 });

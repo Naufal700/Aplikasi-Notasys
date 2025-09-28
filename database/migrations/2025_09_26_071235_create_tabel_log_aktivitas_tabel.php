@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('log_aktivitas', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('modul')->nullable()->after('user_id');
             $table->string('aktivitas');       // contoh: "Buat Lembar Kerja"
             $table->text('detail')->nullable(); // detail aktivitas, misal no pesanan
             $table->timestamps();

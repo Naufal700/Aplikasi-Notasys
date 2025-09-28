@@ -188,7 +188,7 @@ $navbarDetached = ($navbarDetached ?? '');
 <style>
 /* Navbar Modern Styles */
 .layout-navbar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, #667eea 0%, #667eea 100%) !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     padding: 0.5rem 0;
     border: none;
