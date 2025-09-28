@@ -114,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', function() {
-        return view('content.dashboard.dashboards-analytics');
+        return view('dashboard.dashboardutama');
     })->name('dashboard');
 
 //  Route Maste Jenis Akta

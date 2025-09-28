@@ -7,7 +7,7 @@
 
     <!-- Table Card -->
     <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+          <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center py-3">
             <div>
                 <h5 class="mb-1"><i class="mdi mdi-bank me-2"></i>Daftar Bank / Leasing</h5>
                 <small class="opacity-75">Kelola data bank dan leasing partner</small>

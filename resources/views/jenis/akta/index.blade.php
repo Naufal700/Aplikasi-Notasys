@@ -7,7 +7,7 @@
 
     <!-- Table Card -->
     <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+          <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center py-3">
             <div>
                 <h5 class="mb-1"><i class="mdi mdi-file-document-multiple me-2"></i>Master Jenis Akta</h5>
                 <small class="opacity-75">Kelola data tipe dan nama akta</small>

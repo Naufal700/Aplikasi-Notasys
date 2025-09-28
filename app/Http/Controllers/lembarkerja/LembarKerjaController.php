@@ -372,7 +372,7 @@ if($filterDate === 'today') {
             'urutan' => $request->urutan,
             'catatan' => $request->catatan,
         ]);
-$this->logAktivitas('Tambah Proses', "Lembar: {$lembarKerja->no_pesanan}, Proses: {$proses->nama_proses}");
+$this->logAktivitas('Tambah Proses', "Lembar: {$lembarKerja->no_pesanan}, Proses: {$proses->nama_proses}",'Lembar Kerja');
         return response()->json(['status' => 'success', 'proses' => $proses]);
     }
 
@@ -428,7 +428,7 @@ public function storeTagihan(Request $request, $id)
 
     // Validasi
     $validated = $request->validate([
-        'kategori_id' => 'required|exists:keuangan_kategori,id', // ganti jenis jadi kategori
+        'kategori_id' => 'required|exists:keuangan_kategori,id',
         'tanggal' => 'required|date',
         'total_tagihan' => 'required|numeric|min:0',
         'jatuh_tempo' => 'required|date',
@@ -439,8 +439,19 @@ public function storeTagihan(Request $request, $id)
     // Cari Lembar Kerja
     $lembarKerja = LembarKerja::findOrFail($id);
 
-    // Simpan tagihan
-    $tagihan = $lembarKerja->tagihan()->create($validated);
+    // Cek atau buat baru (hindari duplikat)
+    $tagihan = $lembarKerja->tagihan()->firstOrCreate(
+        [
+            'kategori_id' => $validated['kategori_id'],
+            'tanggal' => $validated['tanggal'],
+        ],
+        [
+            'total_tagihan' => $validated['total_tagihan'],
+            'jatuh_tempo' => $validated['jatuh_tempo'],
+            'metode_pembayaran' => $validated['metode_pembayaran'],
+            'keterangan' => $validated['keterangan'] ?? null,
+        ]
+    );
 
     $this->logAktivitas(
         'Tambah Tagihan', 
@@ -453,6 +464,7 @@ public function storeTagihan(Request $request, $id)
         'tagihan' => $tagihan
     ]);
 }
+
 
     public function destroyTagihan($lembarKerjaId, $tagihanId)
 {

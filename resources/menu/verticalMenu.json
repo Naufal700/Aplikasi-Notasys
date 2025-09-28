@@ -3,7 +3,7 @@
     {
       "name": "Dashboard",
       "icon": "menu-icon tf-icons mdi mdi-view-dashboard-outline",
-      "slug": "dashboard",
+      "slug": "dashboard.dashboardutama",
       "url": "/dashboard"
     },
     {

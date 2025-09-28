@@ -14,17 +14,11 @@
         <input type="date" name="tgl_pesanan" class="form-control" value="{{ old('tgl_pesanan', $lembarKerja->tgl_pesanan) }}" required>
     </div>
     <div class="col-md-4 mb-3">
-        <label>Nama Pelanggan <span class="text-danger">*</span></label>
-        <select name="klien_id" class="form-control" id="klienSelect" required>
-            <option value="">-- Pilih Klien --</option>
-            @foreach($klien as $k)
-                <option value="{{ $k->id }}" data-tipe="{{ $k->tipe }}"
-                    {{ old('klien_id', $lembarKerja->klien_id) == $k->id ? 'selected' : '' }}>
-                    {{ $k->nama }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+    <label>Nama Pelanggan <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" value="{{ $lembarKerja->klien->nama ?? '' }}" readonly>
+    <input type="hidden" name="klien_id" value="{{ $lembarKerja->klien_id }}">
+</div>
+
     <div class="col-md-4 mb-3">
         <label>Tipe Pelanggan</label>
         <input type="text" name="tipe_pelanggan" id="tipePelanggan" class="form-control"

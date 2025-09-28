@@ -7,7 +7,7 @@
 
     <!-- Table Card -->
     <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+        <div class="card-header bg-light text-dark d-flex justify d-flex justify-content-between align-items-center py-3">
             <div>
                 <h5 class="mb-1"><i class="mdi mdi-account-multiple me-2"></i>Daftar Klien</h5>
                 <small class="opacity-75">Kelola data klien dengan mudah</small>
@@ -173,12 +173,12 @@
                             <!-- Aksi -->
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-1">
-                                    <a href="{{ route('klien.edit', $item->id) }}" 
+                                    {{-- <a href="{{ route('klien.edit', $item->id) }}" 
                                        class="btn btn-warning btn-icon btn-sm"
                                        data-bs-toggle="tooltip" 
                                        title="Edit Klien">
                                         <i class="mdi mdi-pencil-outline"></i>
-                                    </a>
+                                    </a> --}}
                                     <form id="deleteForm{{ $item->id }}" 
                                           action="{{ route('klien.destroy', $item->id) }}" 
                                           method="POST" 

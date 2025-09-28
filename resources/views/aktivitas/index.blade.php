@@ -5,7 +5,7 @@
 @section('layoutContent')
 <div class="container-fluid py-4">
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+          <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center py-3">
             <div>
                 <h5 class="mb-0"><i class="fas fa-history me-2"></i>Log Aktivitas User</h5>
                 <small class="opacity-75">Riwayat aktivitas pengguna dalam sistem</small>
@@ -89,7 +89,7 @@
                                 <div class="fw-medium text-dark">{{ $log->aktivitas }}</div>
                             </td>
                             <td>
-                                <div class="text-truncate" style="max-width: 300px;" title="{{ $log->detail }}">
+                                <div class="text-truncate" style="max-width: 1000px;" title="{{ $log->detail }}">
                                     {{ $log->detail }}
                                 </div>
                             </td>

@@ -5,7 +5,7 @@
 <div class="container-xxl flex-grow-1 container-p-y">
 
    <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+          <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center py-3">
             <div>
                 <h5 class="mb-1"><i class="mdi mdi-cash-multiple me-2"></i>Daftar Tagihan & Pembayaran</h5>
                 <small class="opacity-75">Kelola semua transaksi keuangan</small>
